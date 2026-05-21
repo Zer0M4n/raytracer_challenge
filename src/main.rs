@@ -1,5 +1,5 @@
 mod math;
-fn main() {
 
-    println!("Hello, world!");
+fn main() {
+    let p = println!("Hello, world!");
 }
