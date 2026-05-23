@@ -1,4 +1,4 @@
-use crate::math::utils::comparing_floating_number;
+use crate::utils::comparing_floating_number;
 use crate::math::vector::Vector;
 use std::cmp::PartialEq;
 use std::ops::{Add, Mul, Neg, Sub,Div};

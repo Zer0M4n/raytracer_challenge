@@ -1,5 +1,5 @@
+use crate::utils::comparing_floating_number;
 use crate::math::point::Point;
-use crate::math::utils::comparing_floating_number;
 use std::cmp::PartialEq;
 use std::ops::{Add, Neg, Sub,Mul,Div};
 //The logic vector , w is 0.0 for math facilities
