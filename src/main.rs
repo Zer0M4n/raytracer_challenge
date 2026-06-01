@@ -7,6 +7,7 @@ use crate::color::Color;
 use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::canvas::Canvas;
+use  crate::math::matrix;
 fn main() {
     println!("Hello, world!");
 }
