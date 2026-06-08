@@ -23,6 +23,10 @@ impl Canvas {
         self.pixels[y as usize][x as usize]
     }
 
+    pub fn canvas_to_ppm() {
+
+    }
+
 }
 #[cfg(test)]
 mod  test {
