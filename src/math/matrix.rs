@@ -4,12 +4,12 @@ struct Matrix {
 }
 
 impl Matrix {
-    fn new(x: usize , y: usize) -> Self{
+    fn new(x: usize, y: usize) -> Self {
         Matrix { x, y }
-    }   
+    }
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
 }

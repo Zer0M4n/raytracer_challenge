@@ -1,9 +1,9 @@
-use crate::utils::comparing_floating_number;
 use crate::math::point::Point;
+use crate::utils::comparing_floating_number;
 use std::cmp::PartialEq;
-use std::ops::{Add, Neg, Sub,Mul,Div};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 //The logic vector , w is 0.0 for math facilities
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Vector {
     pub x: f64,
     pub y: f64,
@@ -30,48 +30,32 @@ impl Vector {
     fn subtrac_vector(&self, other: &Self) -> Self {
         Vector::new(self.x - other.x, self.y - other.y, self.z - other.z)
     }
-    fn multi_scalar(&self , scalar: f64) -> Self {
-        Vector::new(
-            self.x * scalar, 
-            self.y * scalar, 
-            self.z * scalar
-        )        
+    fn multi_scalar(&self, scalar: f64) -> Self {
+        Vector::new(self.x * scalar, self.y * scalar, self.z * scalar)
     }
     fn div_scalar(&self, scalar: f64) -> Self {
-        Vector::new(
-            self.x / scalar, 
-            self.y / scalar, 
-            self.z / scalar 
-        )
+        Vector::new(self.x / scalar, self.y / scalar, self.z / scalar)
     }
-    fn lenght(&self) -> f64{
-        (
-            self.x.powi(2) +
-            self.y.powi(2) +
-            self.z.powi(2) +
-            self.w.powi(2) 
-        ).sqrt()
+    fn lenght(&self) -> f64 {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
     }
     fn normalization(&self) -> Self {
         Vector::new(
-            self.x / self.lenght(), 
-            self.y / self.lenght(), 
-            self.z / self.lenght()
+            self.x / self.lenght(),
+            self.y / self.lenght(),
+            self.z / self.lenght(),
         )
     }
     fn dot_product(&self, other: Self) -> f64 {
-        (self.x * other.x) +
-        (self.y * other.y) +
-        (self.z * other.z)
+        (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
     }
     fn cross_product(&self, other: Self) -> Self {
         Vector::new(
-            (self.y * other.z) - (self.z * other.y), 
-            (self.z * other.x) - (self.x * other.z), 
-            (self.x * other.y) - (self.y * other.x)
+            (self.y * other.z) - (self.z * other.y),
+            (self.z * other.x) - (self.x * other.z),
+            (self.x * other.y) - (self.y * other.x),
         )
     }
-    
 }
 
 //Arithmetic Operators Overload
@@ -98,13 +82,11 @@ impl Neg for Vector {
 }
 
 impl Mul<f64> for Vector {
-
     type Output = Vector;
 
     fn mul(self, rhs: f64) -> Self::Output {
         self.multi_scalar(rhs)
     }
-    
 }
 impl Div<f64> for Vector {
     type Output = Vector;
@@ -112,7 +94,6 @@ impl Div<f64> for Vector {
     fn div(self, rhs: f64) -> Self::Output {
         self.div_scalar(rhs)
     }
-    
 }
 
 //Boolean Operators Overload
@@ -180,13 +161,12 @@ mod tests {
 
         assert_eq!(v * 3.5, Vector::new(3.5, -7.0, 10.5));
         assert_eq!(v * 0.5, Vector::new(0.5, -1.0, 1.5));
-        
     }
     #[test]
     fn scalar_div_point() {
         let p = Vector::new(1.0, -2.0, 3.0);
 
-        assert_eq!(p / 2.0,Vector::new(0.5, -1.0, 1.5));
+        assert_eq!(p / 2.0, Vector::new(0.5, -1.0, 1.5));
     }
 
     #[test]
@@ -199,7 +179,7 @@ mod tests {
     fn magnitude() {
         let v = Vector::new(0.0, 0.0, 1.0);
         let v2 = Vector::new(1.0, 2.0, 3.0);
-        let h:f64 = 14.0;
+        let h: f64 = 14.0;
         assert_eq!(v.lenght(), 1.0);
         assert_eq!(v2.lenght(), h.sqrt());
     }
@@ -207,21 +187,21 @@ mod tests {
     fn normalizing_vector() {
         let v = Vector::new(1.0, 2.0, 3.0);
 
-        assert_eq!(v.normalization(),Vector::new(0.26726, 0.53452, 0.80178))
+        assert_eq!(v.normalization(), Vector::new(0.26726, 0.53452, 0.80178))
     }
     #[test]
     fn vector_dot_product() {
         let v = Vector::new(1.0, 2.0, 3.0);
         let v1 = Vector::new(2.0, 3.0, 4.0);
 
-        assert_eq!(v.dot_product(v1),20.0);
+        assert_eq!(v.dot_product(v1), 20.0);
     }
-     #[test]
+    #[test]
     fn vector_cross_product() {
         let v = Vector::new(1.0, 2.0, 3.0);
         let v1 = Vector::new(2.0, 3.0, 4.0);
 
-        assert_eq!(v.cross_product(v1) ,Vector::new(-1.0, 2.0, -1.0));
-        assert_eq!(v1.cross_product(v) ,Vector::new(1.0, -2.0, 1.0));
+        assert_eq!(v.cross_product(v1), Vector::new(-1.0, 2.0, -1.0));
+        assert_eq!(v1.cross_product(v), Vector::new(1.0, -2.0, 1.0));
     }
 }

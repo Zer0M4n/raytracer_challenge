@@ -1,10 +1,10 @@
-use crate::utils::comparing_floating_number;
 use crate::math::vector::Vector;
+use crate::utils::comparing_floating_number;
 use std::cmp::PartialEq;
-use std::ops::{Add, Mul, Neg, Sub,Div};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 //The logic point , w is 1.0 for math facilities
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
@@ -32,20 +32,10 @@ impl Point {
         Point::new(self.x - other.x, self.y - other.y, self.z - other.z)
     }
     fn multi_scalar(&self, scalar: f64) -> Self {
-
-        Point::new(
-            self.x * scalar, 
-            self.y * scalar, 
-            self.z * scalar 
-        ) 
-        
+        Point::new(self.x * scalar, self.y * scalar, self.z * scalar)
     }
     fn div_scalar(&self, scalar: f64) -> Self {
-        Point::new(
-            self.x / scalar, 
-            self.y / scalar, 
-            self.z / scalar 
-        )
+        Point::new(self.x / scalar, self.y / scalar, self.z / scalar)
     }
 }
 
@@ -77,7 +67,6 @@ impl Mul<f64> for Point {
     fn mul(self, rhs: f64) -> Self::Output {
         self.multi_scalar(rhs)
     }
-    
 }
 impl Div<f64> for Point {
     type Output = Point;
@@ -85,7 +74,6 @@ impl Div<f64> for Point {
     fn div(self, rhs: f64) -> Self::Output {
         self.div_scalar(rhs)
     }
-    
 }
 impl Neg for Point {
     type Output = Point;
@@ -163,12 +151,11 @@ mod tests {
 
         assert_eq!(p * 3.5, Point::new(3.5, -7.0, 10.5));
         assert_eq!(p * 0.5, Point::new(0.5, -1.0, 1.5));
-        
     }
     #[test]
     fn scalar_div_point() {
         let p = Point::new(1.0, -2.0, 3.0);
 
-        assert_eq!(p / 2.0,Point::new(0.5, -1.0, 1.5));
+        assert_eq!(p / 2.0, Point::new(0.5, -1.0, 1.5));
     }
 }
