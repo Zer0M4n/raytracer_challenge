@@ -39,7 +39,7 @@ impl Vector {
     fn lenght(&self) -> f64 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
     }
-    fn normalization(&self) -> Self {
+    pub fn normalization(&self) -> Self {
         Vector::new(
             self.x / self.lenght(),
             self.y / self.lenght(),

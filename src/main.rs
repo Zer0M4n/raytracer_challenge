@@ -11,40 +11,54 @@ use crate::math::vector::Vector;
 use core::f64;
 use std::convert;
 use std::fs::File;
+use std::io::SeekFrom::Start;
 use std::io::{BufWriter, Write};
-fn main() -> std::io::Result<()> {
+#[derive(Debug, Clone, Copy)]
+pub struct projectile {
+    position: Point,
+    velocity: Vector,
+}
+#[derive(Debug, Clone, Copy)]
+struct enviroment {
+    gravity: Vector,
+    wind: Vector
+}
+
+fn tick(env: enviroment, proj: projectile) -> projectile {
+
+    let position = proj.position + proj.velocity;
+    let velocity = proj.velocity + env.wind + env.gravity;
+
+    projectile { position, velocity }
+    
+}
+fn main() {
     //println!("Hello, world!");
-    let file = File::create("image_example.ppm")?;
-    let mut w = BufWriter::new(file);
+    let start = Point::new(0.0,1.0,0.0);
+    let velocity_vector = Vector::new(1.0,1.8,0.0);
+    let velocity = velocity_vector.normalization() * 11.25 ;
 
-    let image_width: i64 = 256;
-    let image_height: i64 = 256;
+    let red = Color::new(1.0, 0.0, 0.0);
+    
+    let gravity = Vector::new(0.0,-1.0,0.0) ;
+    let wind = Vector::new(-0.01, 0.0, 0.0) ;
 
-    writeln!(w, "P3\n {image_width} {image_height} \n255\n")?;
+    let e = enviroment{gravity,wind} ;
+    let mut position = start ;
+    let mut p = projectile{position , velocity};
+    let mut c = Canvas::new(900, 550) ;
 
-    let mut j = 0;
+    while p.position.y >= 0.0 {
+        let x = p.position.x as u64;
+        let y = 549 - p.position.y as u64;
 
-    let mut ir = 0;
-    let mut ig = 0;
-    let mut ib = 0;
-
-    while j < image_height {
-        let mut i = 0;
-
-        while i < image_width {
-            let r = (i as f64) / (image_width - 1) as f64;
-            let g = (j as f64) / (image_width - 1) as f64;
-            let b = 0.0;
-
-            ir = (255.999 * r) as i64;
-            ig = (255.999 * g) as i64;
-            ib = (255.999 * b) as i64;
-            i += 1;
-
-            writeln!(w, "{ir} {ig} {ib}")?;
+        if x < 900 && y < 550 {
+            c.write_pixel(x, y, red);
         }
-        j += 1;
+
+        p = tick(e, p);
     }
 
-    Ok(())
+    c.canvas_to_ppm();
+
 }
