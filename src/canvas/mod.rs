@@ -34,7 +34,7 @@ impl Canvas {
         let mut w = BufWriter::new(file);
 
         let width = self.width;
-        let height  = self.height;
+        let height = self.height;
 
         writeln!(w, "P3\n {width} {height} \n255\n")?;
 

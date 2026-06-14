@@ -46,10 +46,10 @@ impl Vector {
             self.z / self.lenght(),
         )
     }
-    fn dot_product(&self, other: Self) -> f64 {
+    pub fn dot_product(&self, other: Self) -> f64 {
         (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
     }
-    fn cross_product(&self, other: Self) -> Self {
+    pub fn cross_product(&self, other: Self) -> Self {
         Vector::new(
             (self.y * other.z) - (self.z * other.y),
             (self.z * other.x) - (self.x * other.z),
