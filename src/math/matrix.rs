@@ -1,100 +1,62 @@
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Matrix4 {
-    data: [[f64; 4]; 4],
+#[derive(Debug, Clone, PartialEq)]
+
+pub struct Matrix {
+    rows: usize,
+    cols: usize,
+    data: Vec<f64>,
 }
 
-impl Matrix4 {
-    pub fn new(data: [[f64; 4]; 4]) -> Self {
-        Matrix4 { data }
+impl Matrix {
+    pub fn new(rows: usize, cols: usize) -> Self {
+        let data = vec![0.0; rows * cols];
+        Matrix { rows, cols, data }
     }
-    pub fn get(&self, row: usize, col: usize) -> f64 {
-        self.data[row][col]
+    pub fn get(&self, rows: usize, cols: usize) -> f64 {
+        let index = rows * cols + cols;
+        self.data[index]
     }
-
-    pub fn set(&mut self, row: usize, col: usize, value: f64) {
-        self.data[row][col] = value;
-    }
-}
-
-impl Default for Matrix4 {
-    fn default() -> Self {
-        Self {
-            data: [
-                [0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0],
-            ],
-        }
+    pub fn set(&mut self, rows: usize, cols: usize, value: f64) {
+        let index = rows * cols + cols;
+        self.data[index] = value;
     }
 }
 
 #[cfg(test)]
-mod test {
-
+mod tests {
     use super::*;
 
     #[test]
-    fn get_matrix() {
-        let data = [
-            [1.0, 2.0, 3.0, 2.0],
-            [4.0, 5.0, 6.0, 5.0],
-            [7.0, 9.0, 5.0, 7.0],
-            [1.0, 2.0, 3.0, 3.0],
-        ];
+    fn set_values() {
+        let mut m = Matrix::new(4, 4);
 
-        let matrix = Matrix4::new(data);
+        m.set(1, 1, 1.0);
 
-        assert_eq!(matrix.get(0, 0), 1.0);
+        assert_eq!(m.data[0], 0.0);
+        assert_eq!(m.data[1 * 1 + 1], 1.0);
     }
     #[test]
-    fn set_value_in_matrix() {
-        let data = [
-            [1.0, 2.0, 3.0, 2.0],
-            [4.0, 5.0, 6.0, 5.0],
-            [7.0, 9.0, 5.0, 7.0],
-            [1.0, 2.0, 3.0, 3.0],
-        ];
+    fn get_values() {
+        let m = Matrix::new(4, 4);
 
-        let mut matrix = Matrix4::new(data);
-
-        matrix.set(0, 0, 0.0);
-
-        assert_eq!(matrix.get(0, 0), 0.0);
+        assert_eq!(m.get(0, 0), 0.0);
     }
     #[test]
-    fn equal_matrix() {
-        let data = [
-            [1.0, 2.0, 3.0, 2.0],
-            [4.0, 5.0, 6.0, 5.0],
-            [7.0, 9.0, 5.0, 7.0],
-            [1.0, 2.0, 3.0, 3.0],
-        ];
+    fn equality_with_identical_matrices() {
+        let m = Matrix::new(2, 2);
+        let m2 = Matrix::new(2, 2);
 
-        let matrix1 = Matrix4::new(data);
-        let matrix2 = Matrix4::new(data);
-
-        assert_eq!(matrix1, matrix2);
+        assert_eq!(m, m2);
+        assert!(m == m2);
     }
     #[test]
     fn equality_with_different_matrices() {
-        let data = [
-            [1.0, 2.0, 3.0, 4.0],
-            [5.0, 6.0, 7.0, 8.0],
-            [9.0, 8.0, 7.0, 6.0],
-            [5.0, 4.0, 3.0, 2.0],
-        ];
+        
+        let m = Matrix::new(2, 2);
+        let mut m2 = Matrix::new(2, 2);
 
-        let data2 = [
-            [2.0, 3.0, 4.0, 5.0],
-            [6.0, 7.0, 8.0, 9.0],
-            [8.0, 7.0, 6.0, 5.0],
-            [4.0, 3.0, 2.0, 1.0],
-        ];
-
-        let matrix1 = Matrix4::new(data);
-        let matrix2 = Matrix4::new(data2);
-
-        assert!(matrix2 != matrix1);
+        assert!(m == m2);
+        m2.data[0] = 1.0;
+        assert!(m != m2);
     }
+
 }
