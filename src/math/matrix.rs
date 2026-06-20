@@ -1,5 +1,5 @@
 use std::cmp::PartialEq;
-use std::ops::Mul;
+use std::ops::{Index, Mul};
 
 #[derive(Debug, Clone, PartialEq)]
 
@@ -35,6 +35,34 @@ impl Matrix {
     pub fn set(&mut self, rows: usize, cols: usize, value: f64) {
         let index = rows * self.cols + cols;
         self.data[index] = value;
+    }
+    pub fn identity(value: usize) -> Self {
+        let mut data = vec![0.0; value * value];
+        let mut counter = 0;
+
+        for x in 0..value {
+            counter = x;
+            let index = x * value + counter;
+
+            data[index] = 1.0;
+        }
+
+        Matrix::from_vec(value, value, data).unwrap()
+    }
+    pub fn traspose(&mut self) {
+        let copy_m = self.data.clone();
+
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                //index for row-major order
+                let index_rmo = r * self.cols + c;
+
+                //index for colum major ordr
+                let index_cmo = r + c * self.rows;
+
+                self.data[index_rmo] = copy_m[index_cmo];
+            }
+        }
     }
 
     fn multi(&self, rhs: Matrix) -> Result<Matrix, String> {
@@ -75,7 +103,7 @@ impl Mul for Matrix {
 mod tests {
     use core::prelude::v1;
 
-use super::*;
+    use super::*;
 
     #[test]
     fn set_values() {
@@ -130,15 +158,40 @@ use super::*;
     }
     #[test]
     fn multiplied_by_a_tuple() {
-        let v1 = vec![1.0 , 2.0 , 3.0 , 4.0 ,
-                                2.0 , 4.0 , 4.0 , 2.0 ,
-                                8.0 , 6.0 , 4.0 , 1.0 ,
-                                0.0 , 0.0 , 0.0 , 1.0 ];
-        let tuple = vec![1.0,2.0,3.0,1.0];
-        let r = vec![18.0,24.0,33.0,1.0];
+        let v1 = vec![
+            1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        ];
+        let tuple = vec![1.0, 2.0, 3.0, 1.0];
+        let r = vec![18.0, 24.0, 33.0, 1.0];
         let re = Matrix::from_vec(4, 1, r).unwrap();
         let m = Matrix::from_vec(4, 4, v1).unwrap();
         let matrix_tuple = Matrix::from_vec(4, 1, tuple).unwrap();
-        assert_eq!((m * matrix_tuple).unwrap() , re);
+        assert_eq!((m * matrix_tuple).unwrap(), re);
+    }
+    #[test]
+    fn set_matrix_identity() {
+        let identity = Matrix::identity(4);
+
+        assert_eq!(identity.get(0, 0), 1.0);
+        assert_eq!(identity.get(1, 1), 1.0);
+        assert_eq!(identity.get(2, 2), 1.0);
+        assert_eq!(identity.get(3, 3), 1.0);
+    }
+    #[test]
+    fn set_traspose() {
+        let v1 = vec![ 0.0 , 9.0 , 3.0 , 0.0 ,
+                                 9.0 , 8.0 , 0.0 , 8.0 ,
+                                 1.0 , 8.0 , 5.0 , 3.0 ,
+                                 0.0 , 0.0 , 5.0 , 8.0 ,];
+
+        let v2 = vec![ 0.0 , 9.0 , 1.0 , 0.0 ,
+                                 9.0 , 8.0 , 8.0 , 0.0 ,
+                                 3.0 , 0.0 , 5.0 , 5.0 ,
+                                 0.0 , 8.0 , 3.0 , 8.0 ,];
+                                 
+        let mut m1 = Matrix::from_vec(4, 4, v1).unwrap();
+        let m2 = Matrix::from_vec(4, 4, v2).unwrap();
+        m1.traspose();
+        assert_eq!(m1, m2);
     }
 }
