@@ -49,7 +49,7 @@ impl Matrix {
 
         Matrix::from_vec(value, value, data).unwrap()
     }
-    pub fn traspose(&mut self) {
+    pub fn transpose(&mut self) {
         let copy_m = self.data.clone();
 
         for r in 0..self.rows {
@@ -64,6 +64,58 @@ impl Matrix {
             }
         }
     }
+    pub fn determinant(&self) -> f64 {
+        let n = self.rows;
+
+        if n == 1 {
+            return self.get(0, 0);
+        }
+
+        if n == 2 {
+            return self.get(0, 0) * self.get(1, 1) - self.get(0, 1) * self.get(1, 0);
+        }
+
+        let mut det = 0.0;
+
+        for j in 0..n {
+            let minor = Matrix::delete_row_column(self, 0, j);
+
+            let sign = if j % 2 == 0 { 1.0 } else { -1.0 };
+
+            det += sign * self.get(0, j) * minor.determinant();
+        }
+
+        det
+    }
+
+    fn delete_row_column(&self, row: usize, col: usize) -> Matrix {
+        let mut s = Matrix::new(self.rows - 1, self.cols - 1);
+
+        let mut new_r = 0;
+
+        for r in 0..self.rows {
+            if r == row {
+                continue;
+            }
+
+            let mut new_c = 0;
+
+            for c in 0..self.cols {
+                if c == col {
+                    continue;
+                }
+
+                s.set(new_r, new_c, self.get(r, c));
+
+                new_c += 1;
+            }
+
+            new_r += 1;
+        }
+
+        s
+    }
+
 
     fn multi(&self, rhs: Matrix) -> Result<Matrix, String> {
         if self.cols != rhs.rows {
@@ -101,8 +153,6 @@ impl Mul for Matrix {
 
 #[cfg(test)]
 mod tests {
-    use core::prelude::v1;
-
     use super::*;
 
     #[test]
@@ -178,20 +228,35 @@ mod tests {
         assert_eq!(identity.get(3, 3), 1.0);
     }
     #[test]
-    fn set_traspose() {
-        let v1 = vec![ 0.0 , 9.0 , 3.0 , 0.0 ,
-                                 9.0 , 8.0 , 0.0 , 8.0 ,
-                                 1.0 , 8.0 , 5.0 , 3.0 ,
-                                 0.0 , 0.0 , 5.0 , 8.0 ,];
+    fn set_transpose() {
+        let v1 = vec![
+            0.0, 9.0, 3.0, 0.0, 9.0, 8.0, 0.0, 8.0, 1.0, 8.0, 5.0, 3.0, 0.0, 0.0, 5.0, 8.0,
+        ];
 
-        let v2 = vec![ 0.0 , 9.0 , 1.0 , 0.0 ,
-                                 9.0 , 8.0 , 8.0 , 0.0 ,
-                                 3.0 , 0.0 , 5.0 , 5.0 ,
-                                 0.0 , 8.0 , 3.0 , 8.0 ,];
-                                 
+        let v2 = vec![
+            0.0, 9.0, 1.0, 0.0, 9.0, 8.0, 8.0, 0.0, 3.0, 0.0, 5.0, 5.0, 0.0, 8.0, 3.0, 8.0,
+        ];
+
         let mut m1 = Matrix::from_vec(4, 4, v1).unwrap();
         let m2 = Matrix::from_vec(4, 4, v2).unwrap();
-        m1.traspose();
+        m1.transpose();
         assert_eq!(m1, m2);
+    }
+    #[test]
+    fn determinants_matrix() {
+        let data3x3 = vec![1.0, 5.0, 0.0, -3.0, 2.0, 7.0, 0.0, 6.0, -3.0];
+        let m3x3 = Matrix::from_vec(3, 3, data3x3).unwrap();
+        assert_eq!(m3x3.determinant(), -93.0)
+    }
+    #[test]
+    fn calculating_a_minor_of_a_3x3_matrix() {
+        let data3x3 = vec![  3.0 , 5.0 , 0.0 ,
+                             2.0 , -1.0 , -7.0 ,
+                             6.0 , -1.0 , 5.0 ,];
+        let m = Matrix::from_vec(3, 3, data3x3).unwrap();
+        
+        let s = m.delete_row_column( 1,0) ;
+
+        assert_eq!(s.determinant() , 25.0)
     }
 }

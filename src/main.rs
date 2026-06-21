@@ -17,6 +17,6 @@ fn main() {
     let mut boss = Matrix::from_vec(4, 4, v1).unwrap();
 
     println!("{:?}", boss);
-    boss.traspose();
+    boss.transpose();
     println!("{:?}", boss);
 }
