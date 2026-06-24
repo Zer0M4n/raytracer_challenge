@@ -1,7 +1,9 @@
+use crate::utils::{self, comparing_floating_number};
+use core::f64;
 use std::cmp::PartialEq;
-use std::ops::{Index, Mul};
+use std::ops::Mul;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 
 pub struct Matrix {
     rows: usize,
@@ -87,7 +89,34 @@ impl Matrix {
 
         det
     }
+    pub fn inverse(&self) -> Result<Matrix, String> {
+        let det = self.determinant();
 
+        if det == 0.0 {
+            return Err("This matrix has no inverse".to_string());
+        }
+
+        let mut cof = Matrix::new(self.rows, self.cols);
+
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                cof.set(r, c, self.cofactore(r, c));
+            }
+        }
+
+        cof.transpose();
+
+        Ok(cof * (1.0 / det))
+    }
+    fn cofactore(&self, r: usize, c: usize) -> f64 {
+        let submatrix = self.delete_row_column(r, c);
+
+        let menor = submatrix.determinant();
+
+        let signo = if (r + c) % 2 == 0 { 1.0 } else { -1.0 };
+
+        menor * signo
+    }
     fn delete_row_column(&self, row: usize, col: usize) -> Matrix {
         let mut s = Matrix::new(self.rows - 1, self.cols - 1);
 
@@ -116,13 +145,12 @@ impl Matrix {
         s
     }
 
-
     fn multi(&self, rhs: Matrix) -> Result<Matrix, String> {
         if self.cols != rhs.rows {
             return Err(
             "The number of columns of the first matrix must equal the number of rows of the second matrix."
                 .to_string(),
-        );
+            );
         }
 
         let mut result = Matrix::new(self.rows, rhs.cols);
@@ -141,6 +169,28 @@ impl Matrix {
 
         Ok(result)
     }
+
+    fn multi_scalar(&self, value: f64) -> Matrix {
+        let mut nuevos_datos = self.data.clone();
+
+        for x in nuevos_datos.iter_mut() {
+            *x *= value;
+        }
+        Matrix::from_vec(self.rows, self.cols, nuevos_datos).unwrap()
+    }
+    fn equal(&self, value: &Matrix) -> bool {
+        if self.rows != value.rows || self.cols != value.cols {
+            return false;
+        }
+
+        for i in 0..self.data.len() {
+            if !comparing_floating_number(self.data[i], value.data[i]) {
+                return false;
+            }
+        }
+
+        true
+    }
 }
 
 impl Mul for Matrix {
@@ -148,6 +198,18 @@ impl Mul for Matrix {
 
     fn mul(self, rhs: Matrix) -> Self::Output {
         self.multi(rhs)
+    }
+}
+impl Mul<f64> for Matrix {
+    type Output = Matrix;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        self.multi_scalar(rhs)
+    }
+}
+impl PartialEq for Matrix {
+    fn eq(&self, other: &Self) -> bool {
+        self.equal(other)
     }
 }
 
@@ -250,13 +312,28 @@ mod tests {
     }
     #[test]
     fn calculating_a_minor_of_a_3x3_matrix() {
-        let data3x3 = vec![  3.0 , 5.0 , 0.0 ,
-                             2.0 , -1.0 , -7.0 ,
-                             6.0 , -1.0 , 5.0 ,];
+        let data3x3 = vec![3.0, 5.0, 0.0, 2.0, -1.0, -7.0, 6.0, -1.0, 5.0];
         let m = Matrix::from_vec(3, 3, data3x3).unwrap();
-        
-        let s = m.delete_row_column( 1,0) ;
 
-        assert_eq!(s.determinant() , 25.0)
+        let s = m.delete_row_column(1, 0);
+
+        assert_eq!(s.determinant(), 25.0)
+    }
+    #[test]
+    fn calculating_the_inverse_of_another_matrix() {
+        let mut data = vec![
+            8.0, -5.0, 9.0, 2.0, 7.0, 5.0, 6.0, 1.0, -6.0, 0.0, 9.0, 6.0, -3.0, 0.0, -9.0, -4.0,
+        ];
+        let data_inverse = vec![
+            -0.15385, -0.15385, -0.28205, -0.53846, -0.07692, 0.12308, 0.02564, 0.03077, 0.35897,
+            0.35897, 0.43590, 0.92308, -0.69231, -0.69231, -0.76923, -1.92308,
+        ];
+
+        let m = Matrix::from_vec(4, 4, data).unwrap();
+
+        let m_inverse = Matrix::from_vec(4, 4, data_inverse).unwrap();
+        let inverse = m.inverse().unwrap();
+        assert!(inverse.equal(&m_inverse));
+        assert_eq!(m.inverse().unwrap(), m_inverse);
     }
 }
