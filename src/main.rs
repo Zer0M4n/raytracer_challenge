@@ -11,12 +11,9 @@ use crate::math::vector::Vector;
 use std::fmt::Display;
 
 fn main() {
-    let v1 = vec![
-        1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-    ];
-    let mut boss = Matrix::from_vec(4, 4, v1).unwrap();
+          let transform = Matrix::traslation(5.0, -3.0, 2.0) ;
+        let  p = Point::new(-3.0, 4.0, 5.0);
+            let presult = transform  * p;
+            println!("helomd{}", presult.x);
 
-    println!("{:?}", boss);
-    boss.transpose();
-    println!("{:?}", boss);
 }

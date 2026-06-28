@@ -1,6 +1,9 @@
+use crate::math::point::Point;
+use crate::math::vector::{self, Vector};
 use crate::utils::{self, comparing_floating_number};
 use core::f64;
 use std::cmp::PartialEq;
+use std::convert::identity;
 use std::ops::Mul;
 
 #[derive(Debug, Clone)]
@@ -108,6 +111,15 @@ impl Matrix {
 
         Ok(cof * (1.0 / det))
     }
+    pub fn traslation(x: f64,y: f64,z: f64) -> Self {
+        let mut  t = Matrix::identity(4);
+        t.set(0, 3, x);
+        t.set(1, 3, y);
+        t.set(2, 3, z);
+        
+        t
+    }
+    
     fn cofactore(&self, r: usize, c: usize) -> f64 {
         let submatrix = self.delete_row_column(r, c);
 
@@ -205,6 +217,20 @@ impl Mul<f64> for Matrix {
 
     fn mul(self, rhs: f64) -> Self::Output {
         self.multi_scalar(rhs)
+    }
+}
+impl Mul<Point> for Matrix {
+    type Output = Point;
+    fn mul(self, rhs: Point) -> Self::Output {
+        Point::new(rhs.x + self.get(0, 3) , rhs.y + self.get(1, 3), 
+        rhs.z + self.get(2, 3))
+    }
+}
+impl Mul<Vector> for Matrix {
+    type Output = Vector;
+    fn mul(self, rhs: Vector) -> Self::Output {
+        Vector::new(rhs.x + self.get(0, 3) , rhs.y + self.get(1, 3), 
+        rhs.z + self.get(2, 3))
     }
 }
 impl PartialEq for Matrix {
@@ -335,5 +361,12 @@ mod tests {
         let inverse = m.inverse().unwrap();
         assert!(inverse.equal(&m_inverse));
         assert_eq!(m.inverse().unwrap(), m_inverse);
+    }
+    #[test]
+    fn multiplying_by_a_translation_matrix() {
+        let transform = Matrix::traslation(5.0, -3.0, 2.0) ;
+        let  p = Point::new(-3.0, 4.0, 5.0);
+
+        assert_eq!( transform  * p , Point::new(2.0, 1.0, 7.0))
     }
 }
