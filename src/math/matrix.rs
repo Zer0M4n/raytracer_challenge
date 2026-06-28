@@ -111,15 +111,23 @@ impl Matrix {
 
         Ok(cof * (1.0 / det))
     }
-    pub fn traslation(x: f64,y: f64,z: f64) -> Self {
-        let mut  t = Matrix::identity(4);
+    pub fn traslation(x: f64, y: f64, z: f64) -> Self {
+        let mut t = Matrix::identity(4);
         t.set(0, 3, x);
         t.set(1, 3, y);
         t.set(2, 3, z);
-        
+
         t
     }
-    
+    pub fn scaling(x: f64, y: f64, z: f64) -> Self {
+        let mut  result = Matrix::identity(4);
+
+        result.set(0, 0, x);
+        result.set(1, 1, y);
+        result.set(2, 2, z);
+
+        result
+    }
     fn cofactore(&self, r: usize, c: usize) -> f64 {
         let submatrix = self.delete_row_column(r, c);
 
@@ -222,15 +230,40 @@ impl Mul<f64> for Matrix {
 impl Mul<Point> for Matrix {
     type Output = Point;
     fn mul(self, rhs: Point) -> Self::Output {
-        Point::new(rhs.x + self.get(0, 3) , rhs.y + self.get(1, 3), 
-        rhs.z + self.get(2, 3))
+        Point::new(
+            self.get(0, 0) * rhs.x +
+            self.get(0, 1) * rhs.y +
+            self.get(0, 2) * rhs.z +
+            self.get(0, 3),
+
+            self.get(1, 0) * rhs.x +
+            self.get(1, 1) * rhs.y +
+            self.get(1, 2) * rhs.z +
+            self.get(1, 3),
+
+            self.get(2, 0) * rhs.x +
+            self.get(2, 1) * rhs.y +
+            self.get(2, 2) * rhs.z +
+            self.get(2, 3),
+        )
     }
 }
 impl Mul<Vector> for Matrix {
     type Output = Vector;
     fn mul(self, rhs: Vector) -> Self::Output {
-        Vector::new(rhs.x + self.get(0, 3) , rhs.y + self.get(1, 3), 
-        rhs.z + self.get(2, 3))
+        Vector::new(
+            self.get(0, 0) * rhs.x +
+            self.get(0, 1) * rhs.y +
+            self.get(0, 2) * rhs.z,
+
+            self.get(1, 0) * rhs.x +
+            self.get(1, 1) * rhs.y +
+            self.get(1, 2) * rhs.z,
+
+            self.get(2, 0) * rhs.x +
+            self.get(2, 1) * rhs.y +
+            self.get(2, 2) * rhs.z,
+        )
     }
 }
 impl PartialEq for Matrix {
@@ -241,6 +274,8 @@ impl PartialEq for Matrix {
 
 #[cfg(test)]
 mod tests {
+    use crate::math::point;
+
     use super::*;
 
     #[test]
@@ -364,9 +399,47 @@ mod tests {
     }
     #[test]
     fn multiplying_by_a_translation_matrix() {
-        let transform = Matrix::traslation(5.0, -3.0, 2.0) ;
-        let  p = Point::new(-3.0, 4.0, 5.0);
+        let transform = Matrix::traslation(5.0, -3.0, 2.0);
+        let p = Point::new(-3.0, 4.0, 5.0);
 
-        assert_eq!( transform  * p , Point::new(2.0, 1.0, 7.0))
+        assert_eq!(transform * p, Point::new(2.0, 1.0, 7.0))
+    }
+    #[test]
+    fn multiplying_by_the_inverse_of_a_translation_matrix() {
+        let transform = Matrix::traslation(5.0, -3.0, 2.0);
+        let inv = Matrix::inverse(&transform).unwrap();
+        let p = Point::new(-3.0, 4.0, 5.0);
+
+        assert_eq!(inv * p, Point::new(-8.0, 7.0, 3.0))
+    }
+    #[test]
+    fn translation_does_not_affect_vectors() {
+        let transform = Matrix::traslation(5.0, -3.0, 2.0);
+        let v = Vector::new(-3.0, 4.0, 5.0);
+
+        assert_eq!(transform * v, v)
+    }
+    #[test]
+    fn scaling_matrix_applied_to_a_vector() {
+        let transform = Matrix::scaling(2.0, 3.0, 4.0);
+        let v = Vector::new(-4.0, 6.0, 8.0);
+        
+        assert_eq!(transform * v, Vector::new(-8.0, 18.0, 32.0))
+    }
+    #[test]
+    fn multiplying_by_the_inverse_of_a_scaling_matrix() {
+        let transform = Matrix::scaling(2.0, 3.0, 4.0);
+        let inv = Matrix::inverse(&transform).unwrap();
+        let v = Vector::new(-4.0, 6.0, 8.0);
+        
+        assert_eq!(inv * v, Vector::new(-2.0, 2.0, 2.0))
+    }
+    #[test]
+    fn reflection_is_scaling_by_a_negative_value() {
+        let transform = Matrix::scaling(-1.0, 1.0, 1.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        
+        assert_eq!(transform * p, Point::new(-2.0, 3.0, 4.0))
+
     }
 }
