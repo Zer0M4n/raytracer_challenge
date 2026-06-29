@@ -1,13 +1,14 @@
 use crate::math::point::Point;
 use crate::math::vector::{self, Vector};
-use crate::utils::{self, comparing_floating_number};
+use crate::utils::{self, comparing_floating_number, radians};
 use core::f64;
 use std::cmp::PartialEq;
-use std::convert::identity;
 use std::ops::Mul;
+use std::result;
+
+const PI_64: f64 = std::f64::consts::PI;
 
 #[derive(Debug, Clone)]
-
 pub struct Matrix {
     rows: usize,
     cols: usize,
@@ -120,11 +121,41 @@ impl Matrix {
         t
     }
     pub fn scaling(x: f64, y: f64, z: f64) -> Self {
-        let mut  result = Matrix::identity(4);
+        let mut result = Matrix::identity(4);
 
         result.set(0, 0, x);
         result.set(1, 1, y);
         result.set(2, 2, z);
+
+        result
+    }
+    pub fn rotation_x(radians: f64) -> Self {
+        let mut result = Matrix::identity(4);
+
+        result.set(1, 1, radians.cos());
+        result.set(1, 2, -radians.sin());
+        result.set(2, 1, radians.sin());
+        result.set(2, 2, radians.cos());
+
+        result
+    }
+    pub fn rotation_y(radians: f64) -> Self {
+        let mut result = Matrix::identity(4);
+
+        result.set(0, 0, radians.cos());
+        result.set(0, 2, radians.sin());
+        result.set(2, 0, -radians.sin());
+        result.set(2, 2, radians.cos());
+
+        result
+    }
+    pub fn rotation_z(radians: f64) -> Self {
+        let mut result = Matrix::identity(4);
+
+        result.set(0, 0, radians.cos());
+        result.set(0, 1, -radians.sin());
+        result.set(1, 0, radians.sin());
+        result.set(1, 1, radians.cos());
 
         result
     }
@@ -164,7 +195,6 @@ impl Matrix {
 
         s
     }
-
     fn multi(&self, rhs: Matrix) -> Result<Matrix, String> {
         if self.cols != rhs.rows {
             return Err(
@@ -189,7 +219,6 @@ impl Matrix {
 
         Ok(result)
     }
-
     fn multi_scalar(&self, value: f64) -> Matrix {
         let mut nuevos_datos = self.data.clone();
 
@@ -231,20 +260,18 @@ impl Mul<Point> for Matrix {
     type Output = Point;
     fn mul(self, rhs: Point) -> Self::Output {
         Point::new(
-            self.get(0, 0) * rhs.x +
-            self.get(0, 1) * rhs.y +
-            self.get(0, 2) * rhs.z +
-            self.get(0, 3),
-
-            self.get(1, 0) * rhs.x +
-            self.get(1, 1) * rhs.y +
-            self.get(1, 2) * rhs.z +
-            self.get(1, 3),
-
-            self.get(2, 0) * rhs.x +
-            self.get(2, 1) * rhs.y +
-            self.get(2, 2) * rhs.z +
-            self.get(2, 3),
+            self.get(0, 0) * rhs.x
+                + self.get(0, 1) * rhs.y
+                + self.get(0, 2) * rhs.z
+                + self.get(0, 3),
+            self.get(1, 0) * rhs.x
+                + self.get(1, 1) * rhs.y
+                + self.get(1, 2) * rhs.z
+                + self.get(1, 3),
+            self.get(2, 0) * rhs.x
+                + self.get(2, 1) * rhs.y
+                + self.get(2, 2) * rhs.z
+                + self.get(2, 3),
         )
     }
 }
@@ -252,17 +279,9 @@ impl Mul<Vector> for Matrix {
     type Output = Vector;
     fn mul(self, rhs: Vector) -> Self::Output {
         Vector::new(
-            self.get(0, 0) * rhs.x +
-            self.get(0, 1) * rhs.y +
-            self.get(0, 2) * rhs.z,
-
-            self.get(1, 0) * rhs.x +
-            self.get(1, 1) * rhs.y +
-            self.get(1, 2) * rhs.z,
-
-            self.get(2, 0) * rhs.x +
-            self.get(2, 1) * rhs.y +
-            self.get(2, 2) * rhs.z,
+            self.get(0, 0) * rhs.x + self.get(0, 1) * rhs.y + self.get(0, 2) * rhs.z,
+            self.get(1, 0) * rhs.x + self.get(1, 1) * rhs.y + self.get(1, 2) * rhs.z,
+            self.get(2, 0) * rhs.x + self.get(2, 1) * rhs.y + self.get(2, 2) * rhs.z,
         )
     }
 }
@@ -274,8 +293,6 @@ impl PartialEq for Matrix {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::point;
-
     use super::*;
 
     #[test]
@@ -423,7 +440,7 @@ mod tests {
     fn scaling_matrix_applied_to_a_vector() {
         let transform = Matrix::scaling(2.0, 3.0, 4.0);
         let v = Vector::new(-4.0, 6.0, 8.0);
-        
+
         assert_eq!(transform * v, Vector::new(-8.0, 18.0, 32.0))
     }
     #[test]
@@ -431,15 +448,49 @@ mod tests {
         let transform = Matrix::scaling(2.0, 3.0, 4.0);
         let inv = Matrix::inverse(&transform).unwrap();
         let v = Vector::new(-4.0, 6.0, 8.0);
-        
+
         assert_eq!(inv * v, Vector::new(-2.0, 2.0, 2.0))
     }
     #[test]
     fn reflection_is_scaling_by_a_negative_value() {
         let transform = Matrix::scaling(-1.0, 1.0, 1.0);
         let p = Point::new(2.0, 3.0, 4.0);
-        
-        assert_eq!(transform * p, Point::new(-2.0, 3.0, 4.0))
 
+        assert_eq!(transform * p, Point::new(-2.0, 3.0, 4.0))
+    }
+    #[test]
+    fn the_inverse_of_an_x_rotation_rotates_in_the_opposite_direction() {
+        let p = Point::new(0.0, 1.0, 0.0);
+        let half_quarte = Matrix::rotation_x(PI_64 / 4.0);
+        let inv = half_quarte.inverse().unwrap();
+
+        assert_eq!(
+            inv * p,
+            Point::new(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0)
+        )
+    }
+    #[test]
+    fn rotating_a_point_around_the_y_axis() {
+        let p = Point::new(0.0, 0.0, 1.0);
+        let half_quarter = Matrix::rotation_y(PI_64 / 4.0);
+        let full_quarter = Matrix::rotation_y(PI_64 / 2.0);
+
+        assert_eq!(
+            half_quarter * p,
+            Point::new(2.0_f64.sqrt() / 2.0, 0.0, 2.0_f64.sqrt() / 2.0)
+        );
+        assert_eq!(full_quarter * p, Point::new(1.0, 0.0, 0.0));
+    }
+    #[test]
+    fn rotating_a_point_around_the_z_axis() {
+        let p = Point::new(0.0, 1.0, 0.0);
+        let half_quarter = Matrix::rotation_z(PI_64 / 4.0);
+        let full_quarter = Matrix::rotation_z(PI_64 / 2.0);
+
+        assert_eq!(
+            half_quarter * p,
+            Point::new(-2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0)
+        );
+        assert_eq!(full_quarter * p, Point::new(-1.0, 0.0, 0.0));
     }
 }
