@@ -210,7 +210,7 @@ impl Matrix {
 
         s
     }
-    fn multi(&self, rhs: Matrix) -> Result<Matrix, String> {
+    fn multi(&self, rhs: &Matrix) -> Result<Matrix, String> {
         if self.cols != rhs.rows {
             return Err(
             "The number of columns of the first matrix must equal the number of rows of the second matrix."
@@ -257,10 +257,10 @@ impl Matrix {
     }
 }
 
-impl Mul for Matrix {
+impl Mul<&Matrix> for &Matrix {
     type Output = Result<Matrix, String>;
 
-    fn mul(self, rhs: Matrix) -> Self::Output {
+    fn mul(self, rhs: &Matrix) -> Self::Output {
         self.multi(rhs)
     }
 }
@@ -271,9 +271,10 @@ impl Mul<f64> for Matrix {
         self.multi_scalar(rhs)
     }
 }
-impl Mul<Point> for Matrix {
+impl Mul<Point> for &Matrix {
     type Output = Point;
-    fn mul(self, rhs: Point) -> Self::Output {
+
+    fn mul(self, rhs: Point) -> Point {
         Point::new(
             self.get(0, 0) * rhs.x
                 + self.get(0, 1) * rhs.y
@@ -290,19 +291,49 @@ impl Mul<Point> for Matrix {
         )
     }
 }
-impl Mul<Vector> for Matrix {
+impl Mul<Vector> for &Matrix {
     type Output = Vector;
-    fn mul(self, rhs: Vector) -> Self::Output {
+
+    fn mul(self, rhs: Vector) -> Vector {
         Vector::new(
-            self.get(0, 0) * rhs.x + self.get(0, 1) * rhs.y + self.get(0, 2) * rhs.z,
-            self.get(1, 0) * rhs.x + self.get(1, 1) * rhs.y + self.get(1, 2) * rhs.z,
-            self.get(2, 0) * rhs.x + self.get(2, 1) * rhs.y + self.get(2, 2) * rhs.z,
+            self.get(0, 0) * rhs.x
+                + self.get(0, 1) * rhs.y
+                + self.get(0, 2) * rhs.z,
+            self.get(1, 0) * rhs.x
+                + self.get(1, 1) * rhs.y
+                + self.get(1, 2) * rhs.z,
+            self.get(2, 0) * rhs.x
+                + self.get(2, 1) * rhs.y
+                + self.get(2, 2) * rhs.z,
         )
     }
 }
 impl PartialEq for Matrix {
     fn eq(&self, other: &Self) -> bool {
         self.equal(other)
+    }
+}
+impl Mul<Point> for Matrix {
+    type Output = Point;
+
+    fn mul(self, rhs: Point) -> Point {
+        (&self).mul(rhs)
+    }
+}
+
+impl Mul<Vector> for Matrix {
+    type Output = Vector;
+
+    fn mul(self, rhs: Vector) -> Vector {
+        (&self).mul(rhs)
+    }
+}
+
+impl Mul for Matrix {
+    type Output = Result<Matrix, String>;
+
+    fn mul(self, rhs: Matrix) -> Self::Output {
+        (&self).mul(&rhs)
     }
 }
 
@@ -549,5 +580,26 @@ mod tests {
         let p = Point::new(2.0, 3.0, 4.0);
 
         assert_eq!(transform * p, Point::new(2.0, 3.0, 7.0))
+    }
+    #[test]
+    fn individual_transformations_are_applied_in_sequence() {
+        let p = Point::new(1.0, 0.0, 1.0);
+        let a = Matrix::rotation_x(PI_64/2.0);
+        let b = Matrix::scaling(5.0, 5.0, 5.0);
+        let c = Matrix::traslation(10.0, 5.0, 7.0);
+
+let p2 = &a * p;
+assert_eq!(p2, Point::new(1.0, -1.0, 0.0));
+
+let p3 = &b * p2;
+assert_eq!(p3, Point::new(5.0, -5.0, 0.0));
+
+let p4 = &c * p3;
+assert_eq!(p4, Point::new(15.0, 0.0, 7.0));
+
+let t = (&c * &b).unwrap();
+let t = (&t * &a).unwrap();
+
+assert_eq!(&t * p, Point::new(15.0, 0.0, 7.0));
     }
 }
