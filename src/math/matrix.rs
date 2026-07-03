@@ -255,6 +255,36 @@ impl Matrix {
 
         true
     }
+
+    //fluent api
+    pub fn translate(mut self, x: f64, y: f64, z: f64) -> Self {
+        self = (Matrix::traslation(x, y, z) * self).unwrap();
+        self
+    }
+
+    pub fn scale(mut self, x: f64, y: f64, z: f64) -> Self {
+        self = (Matrix::scaling(x, y, z) * self).unwrap();
+        self
+    }
+
+    pub fn rotate_x(mut self, radians: f64) -> Self {
+        self = (Matrix::rotation_x(radians) * self).unwrap();
+        self
+    }
+
+    pub fn rotate_y(mut self, radians: f64) -> Self {
+        self = (Matrix::rotation_y(radians) * self).unwrap();
+        self
+    }
+
+    pub fn rotate_z(mut self, radians: f64) -> Self {
+        self = (Matrix::rotation_z(radians) * self).unwrap();
+        self
+    }
+    pub fn shear(mut self, x: f64, x2: f64, y: f64, y2: f64, z: f64, z2: f64) -> Self {
+        self = (Matrix::shearing(x, x2, y, y2, z, z2) * self).unwrap();
+        self
+    }
 }
 
 impl Mul<&Matrix> for &Matrix {
@@ -296,15 +326,9 @@ impl Mul<Vector> for &Matrix {
 
     fn mul(self, rhs: Vector) -> Vector {
         Vector::new(
-            self.get(0, 0) * rhs.x
-                + self.get(0, 1) * rhs.y
-                + self.get(0, 2) * rhs.z,
-            self.get(1, 0) * rhs.x
-                + self.get(1, 1) * rhs.y
-                + self.get(1, 2) * rhs.z,
-            self.get(2, 0) * rhs.x
-                + self.get(2, 1) * rhs.y
-                + self.get(2, 2) * rhs.z,
+            self.get(0, 0) * rhs.x + self.get(0, 1) * rhs.y + self.get(0, 2) * rhs.z,
+            self.get(1, 0) * rhs.x + self.get(1, 1) * rhs.y + self.get(1, 2) * rhs.z,
+            self.get(2, 0) * rhs.x + self.get(2, 1) * rhs.y + self.get(2, 2) * rhs.z,
         )
     }
 }
@@ -584,22 +608,31 @@ mod tests {
     #[test]
     fn individual_transformations_are_applied_in_sequence() {
         let p = Point::new(1.0, 0.0, 1.0);
-        let a = Matrix::rotation_x(PI_64/2.0);
+        let a = Matrix::rotation_x(PI_64 / 2.0);
         let b = Matrix::scaling(5.0, 5.0, 5.0);
         let c = Matrix::traslation(10.0, 5.0, 7.0);
 
-let p2 = &a * p;
-assert_eq!(p2, Point::new(1.0, -1.0, 0.0));
+        let p2 = &a * p;
+        assert_eq!(p2, Point::new(1.0, -1.0, 0.0));
 
-let p3 = &b * p2;
-assert_eq!(p3, Point::new(5.0, -5.0, 0.0));
+        let p3 = &b * p2;
+        assert_eq!(p3, Point::new(5.0, -5.0, 0.0));
 
-let p4 = &c * p3;
-assert_eq!(p4, Point::new(15.0, 0.0, 7.0));
+        let p4 = &c * p3;
+        assert_eq!(p4, Point::new(15.0, 0.0, 7.0));
 
-let t = (&c * &b).unwrap();
-let t = (&t * &a).unwrap();
+        let t = (&c * &b).unwrap();
+        let t = (&t * &a).unwrap();
 
-assert_eq!(&t * p, Point::new(15.0, 0.0, 7.0));
+        assert_eq!(&t * p, Point::new(15.0, 0.0, 7.0));
+    }
+    #[test]
+    fn fluent_api() {
+        let transform = Matrix::identity(4)
+            .rotate_x(PI_64 / 2.0)
+            .scale(5.0, 5.0, 5.0)
+            .translate(10.0, 5.0, 7.0);
+        let p = Point::new(1.0, 0.0, 1.0);
+        assert_eq!(transform * p, Point::new(15.0, 0.0, 7.0));
     }
 }
