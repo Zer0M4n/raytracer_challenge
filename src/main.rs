@@ -10,7 +10,6 @@ use crate::math::matrix::Matrix;
 use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::ray;
-use std::fmt::Display;
 
 fn main() {
     let transform = Matrix::traslation(5.0, -3.0, 2.0);
