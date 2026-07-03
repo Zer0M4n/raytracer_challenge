@@ -3,6 +3,7 @@ use crate::math::vector::{self, Vector};
 use crate::utils::{self, comparing_floating_number, radians};
 use core::f64;
 use std::cmp::PartialEq;
+use std::convert::identity;
 use std::ops::Mul;
 use std::result;
 
@@ -156,6 +157,20 @@ impl Matrix {
         result.set(0, 1, -radians.sin());
         result.set(1, 0, radians.sin());
         result.set(1, 1, radians.cos());
+
+        result
+    }
+    pub fn shearing(x: f64, x2: f64, y: f64, y2: f64, z: f64, z2: f64) -> Self {
+        let mut result = Matrix::identity(4);
+
+        result.set(0, 1, x);
+        result.set(0, 2, x2);
+
+        result.set(1, 0, y);
+        result.set(1, 2, y2);
+
+        result.set(2, 0, z);
+        result.set(2, 1, z2);
 
         result
     }
@@ -492,5 +507,47 @@ mod tests {
             Point::new(-2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0)
         );
         assert_eq!(full_quarter * p, Point::new(-1.0, 0.0, 0.0));
+    }
+    #[test]
+    fn shearing_transformation_moves_x_in_proportion_to_y() {
+        let transform = Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, Point::new(5.0, 3.0, 4.0))
+    }
+    #[test]
+    fn shearing_transformation_moves_x_in_proportion_to_z() {
+        let transform = Matrix::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, Point::new(6.0, 3.0, 4.0))
+    }
+    #[test]
+    fn shearing_transformation_moves_y_in_proportion_to_x() {
+        let transform = Matrix::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, Point::new(2.0, 5.0, 4.0))
+    }
+    #[test]
+    fn shearing_transformation_moves_y_in_proportion_to_z() {
+        let transform = Matrix::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, Point::new(2.0, 7.0, 4.0))
+    }
+    #[test]
+    fn shearing_transformation_moves_z_in_proportion_to_x() {
+        let transform = Matrix::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, Point::new(2.0, 3.0, 6.0))
+    }
+    #[test]
+    fn shearing_transformation_moves_z_in_proportion_to_y() {
+        let transform = Matrix::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, Point::new(2.0, 3.0, 7.0))
     }
 }
