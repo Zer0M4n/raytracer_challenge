@@ -36,7 +36,7 @@ impl Sphere {
 
 #[cfg(test)]
 mod tests {
-    use crate::physics::sphere;
+    use std::ptr::null;
 
     use super::*;
 
@@ -66,7 +66,39 @@ mod tests {
         let i1 = Intersection::new(1.0, &s);
         let i2 = Intersection::new(2.0, &s);
         let xs = vec![i1, i2];
-        let i = Intersection::hit(&xs);
+        let i = Intersection::hit(&xs); //collection the intersections
         assert_eq!(i.unwrap().t, 1.0);
     }
+    #[test]
+    fn when_some_intersections_have_negative_t() {
+        let s = Sphere::new(1.0);
+        let i1 = Intersection::new(-1.0, &s);
+        let i2 = Intersection::new(1.0, &s);
+        let xs = vec![i1, i2];
+        let i = Intersection::hit(&xs); //collection the intersections
+        assert_eq!(i.unwrap().t, 1.0);
+    }
+    #[test]
+    fn when_all_intersections_have_negative_t() {
+        let s = Sphere::new(1.0);
+        let i1 = Intersection::new(-2.0, &s);
+        let i2 = Intersection::new(-1.0, &s);
+        let xs = vec![i1, i2];
+        let i = Intersection::hit(&xs); //collection the intersections
+        assert!(i.is_none())
+    }
+    #[test]
+    fn the_hit_is_always_the_lowest_nonnegative_intersection() {
+        let s = Sphere::new(1.0);
+        let i1 = Intersection::new(5.0, &s);
+        let i2 = Intersection::new(7.0, &s);
+        let i3 = Intersection::new(-3.0, &s);
+        let i4 = Intersection::new(2.0, &s);
+        
+        let xs = vec![i1, i2,i3,i4];
+        let i = Intersection::hit(&xs); //collection the intersections
+        assert_eq!(i.unwrap().t, 2.0);
+    
+    }
+    
 }
