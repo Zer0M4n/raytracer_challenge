@@ -2,6 +2,7 @@ use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::intersect::Intersection;
 use crate::physics::ray::Ray;
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Sphere {
     radius: f64,
     center: Point,
@@ -18,7 +19,7 @@ impl Sphere {
         let sphere_to_ray = ray.origin - self.center;
         let a = Vector::dot_product(&ray.direction, ray.direction);
         let b = 2.0 * Vector::dot_product(&ray.direction, sphere_to_ray);
-        let c = Vector::dot_product(&sphere_to_ray, sphere_to_ray) - 1.0;
+        let c = Vector::dot_product(&sphere_to_ray, sphere_to_ray) - self.radius * self.radius;
 
         let discrimant = (b * b) - 4.0 * a * c;
 
@@ -35,6 +36,8 @@ impl Sphere {
 
 #[cfg(test)]
 mod tests {
+    use crate::physics::sphere;
+
     use super::*;
 
     #[test]
@@ -45,5 +48,25 @@ mod tests {
 
         assert_eq!(i.t, 3.5);
         assert!(std::ptr::eq(i.object, &s));
+    }
+    #[test]
+    fn intersect_sets_the_object_on_the_intersection() {
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let s = Sphere::new(1.0);
+
+        let xs = s.intersect(r);
+
+        assert_eq!(xs.len(), 2);
+        assert!(std::ptr::eq(xs[0].object, &s));
+        assert!(std::ptr::eq(xs[1].object, &s));
+    }
+    #[test]
+    fn intersections_have_positive_t() {
+        let s = Sphere::new(1.0);
+        let i1 = Intersection::new(1.0, &s);
+        let i2 = Intersection::new(2.0, &s);
+        let xs = vec![i1, i2];
+        let i = Intersection::hit(&xs);
+        assert_eq!(i.unwrap().t, 1.0);
     }
 }
