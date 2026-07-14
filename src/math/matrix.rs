@@ -56,20 +56,22 @@ impl Matrix {
 
         Matrix::from_vec(value, value, data).unwrap()
     }
-    pub fn transpose(&mut self) {
+    pub fn transpose(&mut self) -> Self {
         let copy_m = self.data.clone();
 
         for r in 0..self.rows {
             for c in 0..self.cols {
-                //index for row-major order
+                // index for row-major order
                 let index_rmo = r * self.cols + c;
 
-                //index for colum major ordr
+                // index for column-major order
                 let index_cmo = r + c * self.rows;
 
                 self.data[index_rmo] = copy_m[index_cmo];
             }
         }
+
+        self.clone()
     }
     pub fn determinant(&self) -> f64 {
         let n = self.rows;

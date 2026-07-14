@@ -1,5 +1,5 @@
 use crate::math::matrix::Matrix;
-use crate::math::point::Point;
+use crate::math::point::{self, Point};
 use crate::math::vector::Vector;
 use crate::physics::intersect::Intersection;
 use crate::physics::ray::Ray;
@@ -39,6 +39,12 @@ impl Sphere {
     }
     pub fn set_transform(&mut self, m: Matrix) {
         self.transform = m;
+    }
+    pub fn normal_at(&self, p: Point) -> Vector {
+        let object_point = self.transform.inverse().unwrap() * p;
+        let object_normal = object_point - Point::new(0.0, 0.0, 0.0);
+        let world_normal = self.transform.inverse().unwrap().transpose() * object_normal;
+        world_normal
     }
 }
 
@@ -135,5 +141,21 @@ mod tests {
         let xs = s.intersect(r);
 
         assert_eq!(xs.len(), 0)
+    }
+    #[test]
+    fn the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
+        let s = Sphere::new();
+        let n = Sphere::normal_at(&s, Point::new(1.0, 0.0, 0.0));
+
+        assert_eq!(n, Vector::new(1.0, 0.0, 0.0))
+    }
+    #[test]
+    fn Computing_the_normal_on_a_translated_sphere() {
+        let mut s = Sphere::new();
+        s.set_transform(Matrix::identity(4).translate(0.0, 1.0, 0.0));
+
+        let n = unsafe { s.normal_at(Point::new(0.0, 1.70711, -0.70711)) };
+
+        unsafe { assert_eq!(n, Vector::new(0.0, 0.70711, -0.70711)) }
     }
 }
