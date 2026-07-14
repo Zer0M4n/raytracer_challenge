@@ -129,7 +129,7 @@ mod tests {
     fn intersecting_a_translated_sphere_with_a_ray() {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let mut s = Sphere::new();
-        
+
         s.set_transform(Matrix::traslation(5.0, 0.0, 0.0));
 
         let xs = s.intersect(r);
