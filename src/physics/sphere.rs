@@ -1,3 +1,4 @@
+use crate::math::matrix::Matrix;
 use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::intersect::Intersection;
@@ -31,6 +32,9 @@ impl Sphere {
         let t2 = (-b + discrimant.sqrt()) / (2.0 * a);
 
         vec![Intersection::new(t1, self), Intersection::new(t2, self)]
+    }
+    pub fn transform(&self, m: &Matrix) -> Self {
+        
     }
 }
 
@@ -94,11 +98,9 @@ mod tests {
         let i2 = Intersection::new(7.0, &s);
         let i3 = Intersection::new(-3.0, &s);
         let i4 = Intersection::new(2.0, &s);
-        
-        let xs = vec![i1, i2,i3,i4];
+
+        let xs = vec![i1, i2, i3, i4];
         let i = Intersection::hit(&xs); //collection the intersections
         assert_eq!(i.unwrap().t, 2.0);
-    
     }
-    
 }

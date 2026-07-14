@@ -1,3 +1,4 @@
+use crate::math::matrix::Matrix;
 use crate::math::point::Point;
 use crate::math::vector::{self, Vector};
 use crate::physics::intersect;
@@ -13,6 +14,12 @@ impl Ray {
     }
     pub fn position(&self, time: f64) -> Point {
         self.origin + self.direction * time
+    }
+    pub fn transform(&self, m: &Matrix) -> Ray {
+        Ray {
+            origin: m * self.origin,
+            direction: m * self.direction,
+        }
     }
 }
 
@@ -78,5 +85,27 @@ mod tests {
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -6.0);
         assert_eq!(xs[1].t, -4.0);
+    }
+    #[test]
+    fn translating_a_ray() {
+        let r = Ray::new(Point::new(1.0, 2.0, 3.0), Vector::new(0.0, 1.0, 0.0));
+
+        let m = Matrix::identity(4).translate(3.0, 4.0, 5.0);
+
+        let r2 = r.transform(&m);
+
+        assert_eq!(r2.origin, Point::new(4.0, 6.0, 8.0));
+        assert_eq!(r2.direction, Vector::new(0.0, 1.0, 0.0));
+    }
+    #[test]
+    fn scaling_a_ray() {
+        let r = Ray::new(Point::new(1.0, 2.0, 3.0), Vector::new(0.0, 1.0, 0.0));
+
+        let m = Matrix::identity(4).scale(2.0, 3.0, 4.0);
+
+        let r2 = r.transform(&m);
+
+        assert_eq!(r2.origin, Point::new(2.0, 6.0, 12.0));
+        assert_eq!(r2.direction, Vector::new(0.0, 3.0, 0.0));
     }
 }
