@@ -40,7 +40,7 @@ mod tests {
     #[test]
     fn ray_intersects_a_sphere_at_two_points() {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
 
         let xs = s.intersect(r);
         assert_eq!(xs.len(), 2);
@@ -50,7 +50,7 @@ mod tests {
     #[test]
     fn ray_intersects_a_sphere_at_a_tangent() {
         let r = Ray::new(Point::new(0.0, 1.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
 
         let xs = s.intersect(r);
 
@@ -61,7 +61,7 @@ mod tests {
     #[test]
     fn ray_misses_a_sphere() {
         let r = Ray::new(Point::new(0.0, 2.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
 
         let xs = s.intersect(r);
         assert_eq!(xs.len(), 0);
@@ -69,7 +69,7 @@ mod tests {
     #[test]
     fn ray_originates_inside_a_sphere() {
         let r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
 
         let xs = s.intersect(r);
         assert_eq!(xs.len(), 2);
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn sphere_is_behind_a_ray() {
         let r = Ray::new(Point::new(0.0, 0.0, 5.0), Vector::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
 
         let xs = s.intersect(r);
         assert_eq!(xs.len(), 2);

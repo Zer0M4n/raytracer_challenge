@@ -3,24 +3,28 @@ use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::intersect::Intersection;
 use crate::physics::ray::Ray;
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Sphere {
-    radius: f64,
-    center: Point,
+    // radius: f64,
+    // center: Point,
+    pub transform: Matrix,
 }
 
 impl Sphere {
-    pub fn new(radius: f64) -> Self {
-        let center = Point::new(0.0, 0.0, 0.0);
-        Sphere { radius, center }
+    pub fn new() -> Self {
+        Sphere {
+            transform: Matrix::identity(4),
+        }
     }
 
     pub fn intersect(&self, ray: Ray) -> Vec<Intersection> {
         //the sphere always center
-        let sphere_to_ray = ray.origin - self.center;
+        let inv = self.transform.inverse().unwrap();
+        let ray = ray.transform(&inv);
+        let sphere_to_ray = ray.origin - Point::new(0.0, 0.0, 0.0);
         let a = Vector::dot_product(&ray.direction, ray.direction);
         let b = 2.0 * Vector::dot_product(&ray.direction, sphere_to_ray);
-        let c = Vector::dot_product(&sphere_to_ray, sphere_to_ray) - self.radius * self.radius;
+        let c = Vector::dot_product(&sphere_to_ray, sphere_to_ray) - 1.0;
 
         let discrimant = (b * b) - 4.0 * a * c;
 
@@ -33,20 +37,19 @@ impl Sphere {
 
         vec![Intersection::new(t1, self), Intersection::new(t2, self)]
     }
-    pub fn transform(&self, m: &Matrix) -> Self {
-        
+    pub fn set_transform(&mut self, m: Matrix) {
+        self.transform = m;
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::ptr::null;
 
     use super::*;
 
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
 
         let i = Intersection::new(3.5, &s);
 
@@ -56,7 +59,7 @@ mod tests {
     #[test]
     fn intersect_sets_the_object_on_the_intersection() {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
 
         let xs = s.intersect(r);
 
@@ -66,7 +69,7 @@ mod tests {
     }
     #[test]
     fn intersections_have_positive_t() {
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
         let i1 = Intersection::new(1.0, &s);
         let i2 = Intersection::new(2.0, &s);
         let xs = vec![i1, i2];
@@ -75,7 +78,7 @@ mod tests {
     }
     #[test]
     fn when_some_intersections_have_negative_t() {
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
         let i1 = Intersection::new(-1.0, &s);
         let i2 = Intersection::new(1.0, &s);
         let xs = vec![i1, i2];
@@ -84,7 +87,7 @@ mod tests {
     }
     #[test]
     fn when_all_intersections_have_negative_t() {
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
         let i1 = Intersection::new(-2.0, &s);
         let i2 = Intersection::new(-1.0, &s);
         let xs = vec![i1, i2];
@@ -93,7 +96,7 @@ mod tests {
     }
     #[test]
     fn the_hit_is_always_the_lowest_nonnegative_intersection() {
-        let s = Sphere::new(1.0);
+        let s = Sphere::new();
         let i1 = Intersection::new(5.0, &s);
         let i2 = Intersection::new(7.0, &s);
         let i3 = Intersection::new(-3.0, &s);
@@ -102,5 +105,35 @@ mod tests {
         let xs = vec![i1, i2, i3, i4];
         let i = Intersection::hit(&xs); //collection the intersections
         assert_eq!(i.unwrap().t, 2.0);
+    }
+    #[test]
+    fn a_sphere_default_transformation() {
+        let mut s = Sphere::new();
+        s.set_transform(Matrix::identity(4));
+
+        assert_eq!(s.transform, Matrix::identity(4));
+    }
+    #[test]
+    fn intersecting_a_scaled_sphere_with_a_ray() {
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let mut s = Sphere::new();
+        s.set_transform(Matrix::scaling(2.0, 2.0, 2.0));
+
+        let xs = s.intersect(r);
+
+        assert_eq!(xs.len(), 2);
+        assert_eq!(xs[0].t, 3.0);
+        assert_eq!(xs[1].t, 7.0);
+    }
+    #[test]
+    fn intersecting_a_translated_sphere_with_a_ray() {
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let mut s = Sphere::new();
+        
+        s.set_transform(Matrix::traslation(5.0, 0.0, 0.0));
+
+        let xs = s.intersect(r);
+
+        assert_eq!(xs.len(), 0)
     }
 }
