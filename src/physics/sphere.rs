@@ -2,16 +2,19 @@ use crate::math::matrix::Matrix;
 use crate::math::point::{self, Point};
 use crate::math::vector::Vector;
 use crate::physics::intersect::Intersection;
+use crate::physics::material::Material;
 use crate::physics::ray::Ray;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Sphere {
     pub transform: Matrix,
+    pub material: Material,
 }
 
 impl Sphere {
     pub fn new() -> Self {
         Sphere {
             transform: Matrix::identity(4),
+            material: Material::default(),
         }
     }
 
@@ -47,6 +50,9 @@ impl Sphere {
         let mut world_normal = inverse.transpose() * object_normal;
 
         world_normal.normalization()
+    }
+    pub fn set_material(mut self , m: Material) {
+        self.material = m;
     }
 }
 

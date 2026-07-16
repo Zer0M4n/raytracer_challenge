@@ -1,5 +1,7 @@
 use crate::color::Color;
 
+#[derive(Debug, Clone,PartialEq)]
+
 pub struct Material {
     color: Color,
     ambient: f64,
@@ -37,5 +39,20 @@ impl Material {
 
     pub fn shininess(mut self, sh: f64) {
         self.shininess = sh;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn the_default_material() {
+        let m = Material::default();
+
+        assert_eq!(m.color, Color::new(1.0, 1.0, 1.0));
+        assert_eq!(m.ambient, 0.1);
+        assert_eq!(m.diffuse, 0.9);
+        assert_eq!(m.specular, 0.9);
+        assert_eq!(m.shininess, 200.0);
     }
 }
