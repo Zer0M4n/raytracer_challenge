@@ -1,6 +1,7 @@
 use crate::math::point::Point;
 use crate::utils::comparing_floating_number;
 use std::cmp::PartialEq;
+use std::num::FpCategory::Normal;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 //The logic vector , w is 0.0 for math facilities
 #[derive(Debug, Clone, Copy)]
@@ -56,6 +57,9 @@ impl Vector {
             (self.x * other.y) - (self.y * other.x),
         )
     }
+    pub fn reflect(self, normal: Vector) -> Vector {
+        self - normal * 2.0 * self.dot_product(normal)
+    }
 }
 
 //Arithmetic Operators Overload
@@ -68,7 +72,7 @@ impl Add for Vector {
 impl Sub for Vector {
     type Output = Vector;
 
-    fn sub(self, rhs: Self) -> Self::Output {
+    fn sub(self, rhs: Self) -> Vector {
         self.subtrac_vector(&rhs)
     }
 }
@@ -203,5 +207,21 @@ mod tests {
 
         assert_eq!(v.cross_product(v1), Vector::new(-1.0, 2.0, -1.0));
         assert_eq!(v1.cross_product(v), Vector::new(1.0, -2.0, 1.0));
+    }
+    #[test]
+    fn reflecting_a_vector_off_a_slanted_surface() {
+        let v = Vector::new(0.0, -1.0, 0.0);
+        let n = Vector::new(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
+
+        let r = v.reflect(n);
+        assert_eq!(r, Vector::new(1.0, 0.0, 0.0));
+    }
+    #[test]
+    fn reflecting_a_vector_approaching_at_45_grades() {
+        let v = Vector::new(1.0, -1.0, 0.0);
+        let n = Vector::new(0.0, 1.0, 0.0);
+
+        let r = v.reflect(n);
+        assert_eq!(r, Vector::new(1.0, 1.0, 0.0));
     }
 }

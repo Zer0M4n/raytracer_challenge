@@ -5,8 +5,6 @@ use crate::physics::intersect::Intersection;
 use crate::physics::ray::Ray;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Sphere {
-    // radius: f64,
-    // center: Point,
     pub transform: Matrix,
 }
 
@@ -41,15 +39,21 @@ impl Sphere {
         self.transform = m;
     }
     pub fn normal_at(&self, p: Point) -> Vector {
-        let object_point = self.transform.inverse().unwrap() * p;
+        let mut inverse = self.transform.inverse().unwrap();
+
+        let object_point = inverse.clone() * p;
         let object_normal = object_point - Point::new(0.0, 0.0, 0.0);
-        let world_normal = self.transform.inverse().unwrap().transpose() * object_normal;
-        world_normal
+
+        let mut world_normal = inverse.transpose() * object_normal;
+
+        world_normal.normalization()
     }
 }
 
 #[cfg(test)]
 mod tests {
+
+    use std::f64::consts::PI;
 
     use super::*;
 
@@ -157,5 +161,15 @@ mod tests {
         let n = unsafe { s.normal_at(Point::new(0.0, 1.70711, -0.70711)) };
 
         unsafe { assert_eq!(n, Vector::new(0.0, 0.70711, -0.70711)) }
+    }
+    #[test]
+    fn computing_the_normal_on_a_transformed_sphere() {
+        let mut s = Sphere::new();
+        let m = (Matrix::identity(4).scale(1.0, 0.5, 1.0) * Matrix::rotation_z(PI / 5.0)).unwrap();
+        s.set_transform(m);
+
+        let n = s.normal_at(Point::new(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0));
+
+        assert_eq!(n, Vector::new(0.0, 0.97014, -0.24254))
     }
 }
