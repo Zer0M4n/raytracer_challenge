@@ -51,7 +51,7 @@ impl Sphere {
 
         world_normal.normalization()
     }
-    pub fn set_material(mut self , m: Material) {
+    pub fn set_material(mut self, m: Material) {
         self.material = m;
     }
 }
