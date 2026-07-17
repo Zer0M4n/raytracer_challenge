@@ -45,3 +45,7 @@ cargo run
 ```bash
 cargo test
 ```
+
+## Last IMAGE generated
+
+![Last image generated](img/example.png)
