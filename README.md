@@ -6,7 +6,7 @@ This project is still under development and is in an early stage.
 
 The goal of this project is to build a ray tracer in Rust without using external libraries, only the Rust standard library.
 
-It is based on the book "The Ray Tracer Challenge" by Jamis Buck and other sources. For more information about how it was built, see [LEARN.es.md](LEARN.md).
+It is based on the book "The Ray Tracer Challenge" by Jamis Buck and other sources. For more information about how it was built, see [LEARN.md](LEARN.md).
 
 ### Run the project
 
