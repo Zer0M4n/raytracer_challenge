@@ -6,15 +6,17 @@ use crate::{
     },
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq,Copy)]
 
 pub struct Material {
-    color: Color,
-    ambient: f64,
-    diffuse: f64,
-    specular: f64,
-    shininess: f64,
+    pub color: Color,
+    pub ambient: f64,
+    pub diffuse: f64,
+    pub specular: f64,
+    pub shininess: f64,
 }
+#[derive(Debug, Clone, PartialEq,Copy)]
+
 pub struct Point_Light {
     point: Point,
     intensity: Color,
@@ -70,25 +72,25 @@ impl Material {
 
         ambient + diffuse + specular
     }
-    pub fn color(mut self, c: Color) {
-        self.color = c;
-    }
+pub fn color(&mut self, c: Color) {
+    self.color = c;
+}
 
-    pub fn ambient(mut self, am: f64) {
-        self.ambient = am;
-    }
+pub fn ambient(&mut self, am: f64) {
+    self.ambient = am;
+}
 
-    pub fn diffuse(mut self, diff: f64) {
-        self.diffuse = diff;
-    }
+pub fn diffuse(&mut self, diff: f64) {
+    self.diffuse = diff;
+}
 
-    pub fn specular(mut self, sp: f64) {
-        self.specular = sp;
-    }
+pub fn specular(&mut self, sp: f64) {
+    self.specular = sp;
+}
 
-    pub fn shininess(mut self, sh: f64) {
-        self.shininess = sh;
-    }
+pub fn shininess(&mut self, sh: f64) {
+    self.shininess = sh;
+}
 }
 
 impl Point_Light {

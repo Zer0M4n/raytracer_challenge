@@ -3,6 +3,8 @@ use crate::math::point::Point;
 use crate::math::vector::{self, Vector};
 use crate::physics::intersect;
 use crate::physics::sphere::Sphere;
+#[derive(Debug, Clone, Copy)]
+
 pub struct Ray {
     pub origin: Point,
     pub direction: Vector,

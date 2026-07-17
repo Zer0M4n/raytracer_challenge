@@ -30,7 +30,7 @@ impl Canvas {
     }
 
     pub fn canvas_to_ppm(&self) -> std::io::Result<()> {
-        let file = File::create("first_circle.ppm")?;
+        let file = File::create("first_circle_with_light.ppm")?;
         let mut w = BufWriter::new(file);
 
         let width = self.width;
