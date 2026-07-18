@@ -1,8 +1,6 @@
 use crate::math::matrix::Matrix;
 use crate::math::point::Point;
-use crate::math::vector::{self, Vector};
-use crate::physics::intersect;
-use crate::physics::sphere::Sphere;
+use crate::math::vector::Vector;
 #[derive(Debug, Clone, Copy)]
 
 pub struct Ray {

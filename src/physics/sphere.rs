@@ -1,5 +1,5 @@
 use crate::math::matrix::Matrix;
-use crate::math::point::{self, Point};
+use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::intersect::Intersection;
 use crate::physics::material::Material;
@@ -18,7 +18,7 @@ impl Sphere {
         }
     }
 
-    pub fn intersect(&self, ray: Ray) -> Vec<Intersection> {
+    pub fn intersect(&self, ray: Ray) -> Vec<Intersection<'_>> {
         //the sphere always center
         let inv = self.transform.inverse().unwrap();
         let ray = ray.transform(&inv);
@@ -47,7 +47,7 @@ impl Sphere {
         let object_point = inverse.clone() * p;
         let object_normal = object_point - Point::new(0.0, 0.0, 0.0);
 
-        let mut world_normal = inverse.transpose() * object_normal;
+        let world_normal = inverse.transpose() * object_normal;
 
         world_normal.normalization()
     }

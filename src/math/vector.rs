@@ -1,7 +1,6 @@
 use crate::math::point::Point;
 use crate::utils::comparing_floating_number;
 use std::cmp::PartialEq;
-use std::num::FpCategory::Normal;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 //The logic vector , w is 0.0 for math facilities
 #[derive(Debug, Clone, Copy)]

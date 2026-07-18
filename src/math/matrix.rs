@@ -1,11 +1,9 @@
 use crate::math::point::Point;
-use crate::math::vector::{self, Vector};
-use crate::utils::{self, comparing_floating_number, radians};
+use crate::math::vector::Vector;
+use crate::utils::comparing_floating_number;
 use core::f64;
 use std::cmp::PartialEq;
-use std::convert::identity;
 use std::ops::Mul;
-use std::result;
 
 const PI_64: f64 = std::f64::consts::PI;
 

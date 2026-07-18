@@ -1,7 +1,7 @@
 use crate::{
     color::Color,
     math::{
-        point::{self, Point},
+        point::Point,
         vector::Vector,
     },
 };
