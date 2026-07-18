@@ -26,7 +26,9 @@ impl Ray {
 #[cfg(test)]
 mod tests {
 
-    use super::*;
+    use crate::physics::sphere::Sphere;
+
+use super::*;
 
     #[test]
     fn computing_a_point_from_a_distance() {
