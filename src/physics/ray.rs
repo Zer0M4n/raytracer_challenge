@@ -28,7 +28,7 @@ mod tests {
 
     use crate::physics::sphere::Sphere;
 
-use super::*;
+    use super::*;
 
     #[test]
     fn computing_a_point_from_a_distance() {
