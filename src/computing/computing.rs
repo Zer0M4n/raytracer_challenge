@@ -10,17 +10,28 @@ struct Computing<'a> {
     pub point: Point,
     pub eyev: Vector,
     pub normalv: Vector,
+    pub inside: bool,
 }
 
 impl<'a> Computing<'a> {
     pub fn prepare_computations(intersection: &Intersection<'a>, ray: Ray) -> Self {
         let comp_p = ray.position(intersection.t);
+        let mut v = intersection.object.normal_at(comp_p);
+        let insidev;
+        if v.dot_product(-ray.direction) < 0.0 {
+            insidev = true;
+            v = -v;
+        } else {
+            insidev = false;
+        }
+
         Computing {
             t: intersection.t,
             object: intersection.object,
             point: comp_p,
             eyev: -ray.direction,
-            normalv: intersection.object.normal_at(comp_p),
+            normalv: v,
+            inside: insidev,
         }
     }
 }
@@ -30,20 +41,41 @@ mod tests {
     use super::*;
 
     #[test]
-    fn Precomputing_the_state_of_an_intersection() {
-        let r = Ray::new(
-            Point::new(0.0, 0.0, -5.0), 
-            Vector::new(0.0, 0.0, 1.0)
-        );
+    fn precomputing_the_state_of_an_intersection() {
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let shape = Sphere::new();
         let i = Intersection::new(4.0, &shape);
 
         let comps = Computing::prepare_computations(&i, r);
 
-        assert_eq!(comps.t , i.t);
+        assert_eq!(comps.t, i.t);
         assert_eq!(comps.object, i.object);
         assert_eq!(comps.point, Point::new(0.0, 0.0, -1.0));
         assert_eq!(comps.eyev, Vector::new(0.0, 0.0, -1.0));
+        assert_eq!(comps.normalv, Vector::new(0.0, 0.0, -1.0));
+    }
+    #[test]
+    fn the_hit_when_an_intersection_occurs_on_the_outside() {
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let shape = Sphere::new();
+        let i = Intersection::new(4.0, &shape);
+
+        let comps = Computing::prepare_computations(&i, r);
+
+        assert_eq!(comps.inside, false);
+    }
+
+    #[test]
+    fn the_hit_when_an_intersection_occurs_on_the_inside() {
+        let r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 1.0));
+        let shape = Sphere::new();
+        let i = Intersection::new(1.0, &shape);
+
+        let comps = Computing::prepare_computations(&i, r);
+
+        assert_eq!(comps.point, Point::new(0.0, 0.0, 1.0));
+        assert_eq!(comps.eyev, Vector::new(0.0, 0.0, -1.0));
+        assert!(comps.inside);
         assert_eq!(comps.normalv, Vector::new(0.0, 0.0, -1.0));
     }
 }
