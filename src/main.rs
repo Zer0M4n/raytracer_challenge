@@ -1,11 +1,13 @@
 mod canvas;
 mod color;
+mod computing;
 mod math;
 mod physics;
 mod utils;
 
 use crate::canvas::Canvas;
 use crate::color::Color;
+use crate::computing::*;
 use crate::math::point::Point;
 use crate::physics::intersect::Intersection;
 use crate::physics::material::Point_Light;
