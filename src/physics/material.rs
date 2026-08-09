@@ -1,6 +1,9 @@
 use crate::{
     color::Color,
-    math::{point::Point, vector::Vector},
+    math::{
+        point::{self, Point},
+        vector::Vector,
+    },
 };
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -29,8 +32,13 @@ impl Material {
             shininess: 200.0,
         }
     }
-    pub fn lighting(&self, light: &Point_Light, eyev: Vector, normalv: Vector) -> Color {
-        let point = Point::new(0.0, 0.0, 0.0);
+    pub fn lighting(
+        &self,
+        light: &Point_Light,
+        point: Point,
+        eyev: Vector,
+        normalv: Vector,
+    ) -> Color {
         // combine the surface color with the light's color/intensity
         let effective_color = self.color * light.intensity;
 
@@ -111,12 +119,14 @@ mod tests {
     }
     #[test]
     fn lighting_with_the_light_behind_the_surface() {
+        let point = Point::new(0.0, 0.0, 0.0);
+
         let eyev = Vector::new(0.0, 0.0, -1.0);
         let normalv = Vector::new(0.0, 0.0, -1.0);
         let material = Material::default();
         let light = Point_Light::new(Point::new(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = material.lighting(&light, eyev, normalv);
+        let result = material.lighting(&light, point, eyev, normalv);
 
         assert_eq!(result, Color::new(0.1, 0.1, 0.1))
     }

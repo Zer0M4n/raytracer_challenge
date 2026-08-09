@@ -1,5 +1,8 @@
+use minifb::Key::C;
+
 use crate::{
     color::Color,
+    computing::computing::Computing,
     math::{matrix::Matrix, point::Point},
     physics::{intersect::Intersection, material::*, ray::Ray, sphere::Sphere},
 };
@@ -43,12 +46,32 @@ impl World {
 
         xs
     }
+    fn shade_hit(&self, comps: Computing) -> Color {
+        comps
+            .object
+            .material
+            .lighting(&self.light, comps.point, comps.eyev, comps.normalv)
+    }
+    pub fn color_at(&self, ray: Ray) -> Color {
+        let xs = self.intersect_world(ray);
+        let hit = Intersection::hit(&xs);
+
+        if hit.is_none() {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+
+        let comps = Computing::prepare_computations(&hit.unwrap(), ray);
+
+        self.shade_hit(comps)
+    }
 }
 
 #[cfg(test)]
-
 mod tests {
+    use std::num::IntErrorKind::PosOverflow;
+
     use crate::{
+        computing::computing::Computing,
         math::{matrix::Matrix, vector::Vector},
         physics::{material::Material, ray::Ray, sphere},
     };
@@ -88,5 +111,43 @@ mod tests {
         assert_eq!(xs[1].t, 4.5);
         assert_eq!(xs[2].t, 5.5);
         assert_eq!(xs[3].t, 6.0);
+    }
+    #[test]
+    fn shading_an_intersection() {
+        let w = World::default();
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let shape = w.objects[0].clone(); //First object in w
+        let i = Intersection::new(4.0, &shape);
+        let comps = Computing::prepare_computations(&i, r);
+        let c = w.shade_hit(comps);
+        assert_eq!(Color::new(0.38066, 0.47583, 0.2855), c)
+    }
+    #[test]
+    fn shading_an_intersection_from_the_inside() {
+        let mut w = World::default();
+        w.light = Point_Light::new(Point::new(0.0, 0.25, 0.0), Color::new(1.0, 1.0, 1.0));
+        let r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 1.0));
+
+        let shape = w.objects[1].clone(); //the second object in w
+
+        let i = Intersection::new(0.5, &shape);
+
+        let comps = Computing::prepare_computations(&i, r);
+        let c = w.shade_hit(comps);
+
+        assert_eq!(Color::new(0.90498, 0.90498, 0.90498), c)
+    }
+    #[test]
+    fn the_color_with_an_intersection_behind_the_ray() {
+        let mut w = World::default();
+
+        w.objects[0].material.ambient(1.0); // outer
+        w.objects[1].material.ambient(1.0); // inner
+
+        let r = Ray::new(Point::new(0.0, 0.0, 0.75), Vector::new(0.0, 0.0, -1.0));
+
+        let c = w.color_at(r);
+
+        assert_eq!(c, w.objects[1].material.color);
     }
 }

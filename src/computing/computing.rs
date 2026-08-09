@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Copy)]
-struct Computing<'a> {
+pub struct Computing<'a> {
     pub t: f64,
     pub object: &'a Sphere,
     pub point: Point,
