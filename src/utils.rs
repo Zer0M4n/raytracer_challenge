@@ -60,20 +60,19 @@ mod test {
 
         assert_eq!(t, Matrix::traslation(0.0, 0.0, -8.0))
     }
-//     #[test]
-//     fn an_arbitrary_view_transformation() {
-//         let from = Point::new(1.0, 3.0, 2.0);
-//         let to = Point::new(4.0, -2.0, 8.0);
-//         let up = Vector::new(1.0, 1.0, 0.0);
+    //     #[test]
+    //     fn an_arbitrary_view_transformation() {
+    //         let from = Point::new(1.0, 3.0, 2.0);
+    //         let to = Point::new(4.0, -2.0, 8.0);
+    //         let up = Vector::new(1.0, 1.0, 0.0);
 
-//         let t = view_transformation(from, to, up);
-//         let v_result = vec![
-//              -0.50709 , 0.50709 , 0.67612 , -2.36643 ,
-//  0.76772 , 0.60609 , 0.12122 , -2.82843 ,
-//  -0.35857 , 0.59761 , -0.71714 , 0.00000 ,
-//  0.00000 , 0.00000 , 0.00000 , 1.00000 
-//         ];
-//         assert_eq!(t, Matrix::from_vec(4, 4, v_result).unwrap())
-//     }
-
+    //         let t = view_transformation(from, to, up);
+    //         let v_result = vec![
+    //              -0.50709 , 0.50709 , 0.67612 , -2.36643 ,
+    //  0.76772 , 0.60609 , 0.12122 , -2.82843 ,
+    //  -0.35857 , 0.59761 , -0.71714 , 0.00000 ,
+    //  0.00000 , 0.00000 , 0.00000 , 1.00000
+    //         ];
+    //         assert_eq!(t, Matrix::from_vec(4, 4, v_result).unwrap())
+    //     }
 }

@@ -1,3 +1,4 @@
+mod camera;
 mod canvas;
 mod color;
 mod computing;
@@ -5,6 +6,7 @@ mod math;
 mod physics;
 mod utils;
 
+use crate::camera::camera::Camera;
 use crate::canvas::Canvas;
 use crate::color::Color;
 use crate::computing::*;
@@ -13,7 +15,6 @@ use crate::physics::intersect::Intersection;
 use crate::physics::material::Point_Light;
 use crate::physics::ray::Ray;
 use crate::physics::sphere::Sphere;
-
 // Import minifb windowing dependencies
 use minifb::{Key, Window, WindowOptions};
 
