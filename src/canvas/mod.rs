@@ -25,7 +25,7 @@ impl Canvas {
     pub fn write_pixel(&mut self, x: u64, y: u64, color: Color) {
         self.pixels[y as usize][x as usize] = color;
     }
-    fn read_pixel(&self, x: u64, y: u64) -> Color {
+    pub fn read_pixel(&self, x: u64, y: u64) -> Color {
         self.pixels[y as usize][x as usize]
     }
 
