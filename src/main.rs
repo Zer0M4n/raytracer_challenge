@@ -74,7 +74,7 @@ left.transform = (Matrix::traslation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 
     w.add_object(right);
     w.add_object(left);
 
-    let mut c = Camera::new(100, 50, PI / 3.0);
+    let mut c = Camera::new(1000, 500, PI / 3.0);
     c.transform = view_transformation(
         Point::new(0.0, 1.5, -5.0),
         Point::new(0.0, 1.0, 0.0),
