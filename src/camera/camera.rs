@@ -1,5 +1,8 @@
 use crate::{
-    canvas::Canvas, math::{matrix::Matrix, point::Point}, physics::{ray::Ray, world::World}, utils::comparing_floating_number,
+    canvas::Canvas,
+    math::{matrix::Matrix, point::Point},
+    physics::{ray::Ray, world::World},
+    utils::comparing_floating_number,
 };
 #[derive(Clone)]
 pub struct Camera {
@@ -10,7 +13,7 @@ pub struct Camera {
     half_width: f64,
     half_height: f64,
     pixel_size: f64,
-    transform: Matrix,
+    pub transform: Matrix,
 }
 
 impl Camera {
@@ -60,17 +63,28 @@ impl Camera {
 
         Ray::new(origin, direction)
     }
-    pub fn render(&self, world: World) -> Canvas{
-        let mut image = Canvas::new(self.hsize, self.vsize);
-        for y in 0..self.vsize - 1{
-            for x in 0..self.hsize -1 {
-                let ray = self.ray_for_pixel(x, y);
-                let color = world.color_at(ray);
-                image.write_pixel(x, y, color);
+pub fn render(&self, world: World) -> Canvas {
+    let mut image = Canvas::new(self.hsize, self.vsize);
+
+    for y in 0..self.vsize {
+        for x in 0..self.hsize {
+            let ray = self.ray_for_pixel(x, y);
+
+            let color = world.color_at(ray);
+
+            if x % 100 == 0 && y % 100 == 0 {
+                println!(
+                    "({}, {}) -> {:?}",
+                    x, y, color
+                );
             }
+
+            image.write_pixel(x, y, color);
         }
-        image
-            }
+    }
+
+    image
+}
 }
 
 #[cfg(test)]
@@ -79,7 +93,9 @@ mod tests {
 
     use minifb::Key::V;
 
-use crate::{color::Color, math::vector::Vector, physics::world::World, utils::view_transformation};
+    use crate::{
+        color::Color, math::vector::Vector, physics::world::World, utils::view_transformation,
+    };
 
     use super::*;
 
@@ -145,6 +161,5 @@ use crate::{color::Color, math::vector::Vector, physics::world::World, utils::vi
         let image = c.render(w);
 
         assert_eq!(image.read_pixel(5, 5), Color::new(0.38066, 0.47583, 0.2855))
-        
     }
 }

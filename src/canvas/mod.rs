@@ -29,38 +29,28 @@ impl Canvas {
         self.pixels[y as usize][x as usize]
     }
 
-    pub fn canvas_to_ppm(&self) -> std::io::Result<()> {
-        let file = File::create("img/first_circle_with_light.ppm")?;
-        let mut w = BufWriter::new(file);
+pub fn canvas_to_ppm(&self) -> std::io::Result<()> {
+    let file = File::create("img/first_plane_the_world.ppm")?;
+    let mut w = BufWriter::new(file);
 
-        let width = self.width;
-        let height = self.height;
+    writeln!(w, "P3")?;
+    writeln!(w, "{} {}", self.width, self.height)?;
+    writeln!(w, "255")?;
 
-        writeln!(w, "P3\n {width} {height} \n255\n")?;
+    for y in 0..self.height {
+        for x in 0..self.width {
+            let c = self.read_pixel(x, y);
 
-        let mut j = 0;
+            let red = (255.999 * c.red.clamp(0.0, 1.0)) as i64;
+            let green = (255.999 * c.green.clamp(0.0, 1.0)) as i64;
+            let blue = (255.999 * c.blue.clamp(0.0, 1.0)) as i64;
 
-        let mut ir = 0;
-        let mut ig = 0;
-        let mut ib = 0;
-
-        while j < self.height {
-            let mut i = 0;
-
-            while i < self.width {
-                let C = self.read_pixel(i, j);
-                ir = (255.999 * C.red) as i64;
-                ig = (255.999 * C.green) as i64;
-                ib = (255.999 * C.blue) as i64;
-                i += 1;
-
-                writeln!(w, "{ir} {ig} {ib}")?;
-            }
-            j += 1;
+            writeln!(w, "{} {} {}", red, green, blue)?;
         }
-
-        Ok(())
     }
+
+    Ok(())
+}
 }
 #[cfg(test)]
 mod test {

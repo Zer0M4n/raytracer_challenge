@@ -8,8 +8,8 @@ use crate::{
 };
 
 pub struct World {
-    light: Point_Light,
-    objects: Vec<Sphere>,
+    pub light: Point_Light,
+    pub objects: Vec<Sphere>,
 }
 
 impl World {
