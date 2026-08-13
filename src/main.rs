@@ -1,3 +1,4 @@
+mod camera;
 mod canvas;
 mod color;
 mod computing;
@@ -5,120 +6,81 @@ mod math;
 mod physics;
 mod utils;
 
-use crate::canvas::Canvas;
-use crate::color::Color;
-use crate::computing::*;
-use crate::math::point::Point;
-use crate::physics::intersect::Intersection;
-use crate::physics::material::Point_Light;
-use crate::physics::ray::Ray;
-use crate::physics::sphere::Sphere;
+use std::f64::consts::PI;
 
-// Import minifb windowing dependencies
-use minifb::{Key, Window, WindowOptions};
+use crate::color::Color;
+use crate::math::matrix::Matrix;
+use crate::math::point::Point;
+use crate::math::vector::Vector;
+use crate::physics::material::Point_Light;
+use crate::physics::sphere::Sphere;
+use crate::physics::world::World;
+use crate::utils::view_transformation;
+use crate::{camera::camera::Camera, physics::material::Material};
 
 fn main() {
-    let ray_origin = Point::new(0.0, 0.0, -5.0);
-    let wall_z = 10.0;
-    let wall_size = 7.0;
+    let mut floor = Sphere::new();
+    floor.transform = floor.transform.scale(10.0, 0.01, 10.0);
+    floor.material = Material::default();
+    floor.material.color(Color::new(1.0, 0.9, 0.9));
+    floor.material.specular(0.0);
 
-    // You can keep it at 1000, but 800 is safer for performance during real-time rendering
-    let canvas_pixels = 800; 
+    let mut left_wall = Sphere::new();
+    left_wall.transform = (Matrix::traslation(0.0, 0.0, 5.0)
+        * ((Matrix::rotation_y(-PI / 4.0) * Matrix::rotation_x(PI / 2.0)).unwrap()
+            * Matrix::scaling(10.0, 0.01, 10.0))
+        .unwrap())
+    .unwrap();
+    left_wall.material = floor.material.clone();
 
-    let pixel_size = wall_size / canvas_pixels as f64;
-    let half = wall_size / 2.0;
+    let mut right_wall = Sphere::new();
+    right_wall.transform = (Matrix::traslation(0.0, 0.0, 5.0)
+        * ((Matrix::rotation_y(PI / 4.0) * Matrix::rotation_x(PI / 2.0)).unwrap()
+            * Matrix::scaling(10.0, 0.01, 10.0))
+        .unwrap())
+    .unwrap();
+    right_wall.material = floor.material.clone();
 
-    // 1. Initialize minifb window and the frame buffer
-    let mut window = Window::new(
-        "Real-Time Ray Tracer",
-        canvas_pixels,
-        canvas_pixels,
-        WindowOptions::default(),
-    )
-    .unwrap_or_else(|e| {
-        panic!("{}", e);
-    });
+    let mut middle = Sphere::new();
+    middle.transform = Matrix::traslation(-0.5, 1.0, 0.5);
+    middle.material = Material::default();
+    middle.material.color(Color::new(0.1, 1.0, 0.5));
+    middle.material.diffuse(0.7);
+    middle.material.specular(0.3);
 
-    // Limit window update rate to 60 FPS to prevent 100% CPU bottlenecking
-    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    let mut right = Sphere::new();
+    right.material = Material::default();
+    right.material.color(Color::new(0.5, 1.0, 0.1));
+    right.material.diffuse(0.7);
+    right.material.specular(0.3);
 
-    // Minifb screen buffer (Format: 0x00RRGGBB)
-    let mut screen_buffer: Vec<u32> = vec![0; canvas_pixels * canvas_pixels];
+    let mut left = Sphere::new();
+    left.material = Material::default();
+    left.material.color(Color::new(1.0, 0.8, 0.1));
+    left.material.diffuse(0.7);
+    left.material.specular(0.3);
 
-    // Maintain your original canvas struct in case you still want to export to PPM at the end
-    let mut canvas = Canvas::new(canvas_pixels, canvas_pixels);
+    right.transform = (Matrix::traslation(1.5, 0.5, -0.5) * Matrix::scaling(0.5, 0.5, 0.5)).unwrap();
+left.transform = (Matrix::traslation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 0.33, 0.33)).unwrap();
 
-    // Sphere setup
-    let mut shape = Sphere::new();
-    shape.material.color(Color::new(1.0, 0.2, 1.0));
+    let mut w = World::default();
+    w.light = Point_Light::new(Point::new(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    w.objects.remove(0);
+    w.objects.remove(0);
+    w.add_object(floor);
+    w.add_object(left_wall);
+    w.add_object(right_wall);
+    w.add_object(middle);
+    w.add_object(right);
+    w.add_object(left);
 
-    // Light setup
-    let light_position = Point::new(-10.0, 10.0, -10.0);
-    let light_color = Color::new(1.0, 1.0, 1.0);
-    let light = Point_Light::new(light_position, light_color);
+    let mut c = Camera::new(100, 50, PI / 3.0);
+    c.transform = view_transformation(
+        Point::new(0.0, 1.5, -5.0),
+        Point::new(0.0, 1.0, 0.0),
+        Vector::new(0.0, 1.0, 0.0),
+    );
 
-    // 2. Control variables for real-time progressive rendering
-    let mut current_y = 0; // Tracks the horizontal line we are currently drawing
-    let mut rendering_done = false;
-
-    // 3. Main Window Event Loop
-    while window.is_open() && !window.is_key_down(Key::Escape) {
-        
-        // Render exactly one row of pixels per frame to see the drawing progress in real-time
-        if !rendering_done && current_y < canvas_pixels {
-            let world_y = half - pixel_size * current_y as f64;
-
-            for x in 0..canvas_pixels {
-                let world_x = -half + pixel_size * x as f64;
-                let position = Point::new(world_x, world_y, wall_z);
-
-                let direction = (position - ray_origin).normalization();
-                let ray = Ray::new(ray_origin, direction);
-
-                let xs = shape.intersect(ray);
-
-                if let Some(hit) = Intersection::hit(&xs) {
-                    let point = ray.position(hit.t);
-                    let normal = hit.object.normal_at(point);
-                    let eye = -ray.direction;
-
-                    let color = hit.object.material.lighting(&light, eye, normal);
-
-                    // Write to your native canvas object
-                    canvas.write_pixel(x, current_y, color);
-
-                    // --- CONVERT COLOR TO MINIFB BITWISE FORMAT (0x00RRGGBB) ---
-                    // Assuming Color uses floating points (0.0 to 1.0), multiply by 255.0 and clamp to avoid overflows
-                    let r = (color.r * 255.0).clamp(0.0, 255.0) as u32;
-                    let g = (color.g * 255.0).clamp(0.0, 255.0) as u32;
-                    let b = (color.b * 255.0).clamp(0.0, 255.0) as u32;
-
-                    // Combine channels into a single 32-bit integer using bitwise shifts
-                    let pixel_u32 = (r << 16) | (g << 8) | b;
-
-                    // Write pixel color directly to the screen frame buffer
-                    screen_buffer[current_y * canvas_pixels + x] = pixel_u32;
-                } else {
-                    // Default background color (Black) if the ray doesn't intersect anything
-                    screen_buffer[current_y * canvas_pixels + x] = 0x00000000;
-                }
-            }
-
-            // Move down to the next row for the next frame iteration
-            current_y += 1; 
-            
-            if current_y >= canvas_pixels {
-                rendering_done = true;
-                println!("Rendering complete!");
-                
-                // Save PPM image output once the window finishes rendering
-                canvas.canvas_to_ppm(); 
-            }
-        }
-
-        // 4. Update window surface with the current progress of the screen buffer
-        window
-            .update_with_buffer(&screen_buffer, canvas_pixels, canvas_pixels)
-            .unwrap();
-    }
+    let canv = c.render(w);
+    canv.canvas_to_ppm().unwrap();
 }

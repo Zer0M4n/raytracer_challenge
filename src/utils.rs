@@ -23,7 +23,7 @@ pub fn view_transformation(from: Point, to: Point, up: Vector) -> Matrix {
     ];
     let mut orientation = Matrix::from_vec(4, 4, v_orientation).unwrap();
 
-    let result = orientation * Matrix::traslation(-from.x, -from.x, -from.z);
+    let result = orientation * Matrix::traslation(-from.x, -from.y, -from.z);
     result.unwrap()
 }
 
