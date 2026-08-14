@@ -18,7 +18,7 @@ pub struct Material {
 #[derive(Debug, Clone, PartialEq, Copy)]
 
 pub struct Point_Light {
-    point: Point,
+    pub point: Point,
     intensity: Color,
 }
 impl Material {
@@ -38,6 +38,7 @@ impl Material {
         point: Point,
         eyev: Vector,
         normalv: Vector,
+        in_shadow: bool,
     ) -> Color {
         // combine the surface color with the light's color/intensity
         let effective_color = self.color * light.intensity;
@@ -47,7 +48,9 @@ impl Material {
 
         // compute the ambient contribution
         let ambient = effective_color * self.ambient;
-
+        if in_shadow {
+            return ambient;
+        }
         let diffuse: Color;
         let specular: Color;
 
@@ -126,7 +129,7 @@ mod tests {
         let material = Material::default();
         let light = Point_Light::new(Point::new(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = material.lighting(&light, point, eyev, normalv);
+        let result = material.lighting(&light, point, eyev, normalv, true);
 
         assert_eq!(result, Color::new(0.1, 0.1, 0.1))
     }

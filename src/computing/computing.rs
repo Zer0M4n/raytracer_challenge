@@ -1,3 +1,5 @@
+use std::f64::EPSILON;
+
 use crate::{
     math::{point::Point, vector::Vector},
     physics::{intersect::Intersection, ray::Ray, sphere::Sphere},
@@ -11,6 +13,7 @@ pub struct Computing<'a> {
     pub eyev: Vector,
     pub normalv: Vector,
     pub inside: bool,
+    pub over_point: Point,
 }
 
 impl<'a> Computing<'a> {
@@ -25,6 +28,8 @@ impl<'a> Computing<'a> {
             insidev = false;
         }
 
+        let over_point = comp_p + v * EPSILON;
+
         Computing {
             t: intersection.t,
             object: intersection.object,
@@ -32,6 +37,7 @@ impl<'a> Computing<'a> {
             eyev: -ray.direction,
             normalv: v,
             inside: insidev,
+            over_point,
         }
     }
 }

@@ -46,11 +46,30 @@ impl World {
 
         xs
     }
+    fn is_shadowed(&self, p: Point) -> bool {
+        let v = self.light.point - p;
+        let distance = v.lenght();
+        let direction = v.normalization();
+
+        let r = Ray::new(p, direction);
+
+        let intersections = self.intersect_world(r);
+
+        if let Some(hit) = Intersection::hit(&intersections) {
+            hit.t < distance
+        } else {
+            false
+        }
+    }
     fn shade_hit(&self, comps: Computing) -> Color {
-        comps
-            .object
-            .material
-            .lighting(&self.light, comps.point, comps.eyev, comps.normalv)
+        let shadowed = self.is_shadowed(comps.over_point);
+        comps.object.material.lighting(
+            &self.light,
+            comps.point,
+            comps.eyev,
+            comps.normalv,
+            shadowed,
+        )
     }
     pub fn color_at(&self, ray: Ray) -> Color {
         let xs = self.intersect_world(ray);

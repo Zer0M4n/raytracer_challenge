@@ -4,6 +4,7 @@ use crate::{
     physics::{ray::Ray, world::World},
     utils::comparing_floating_number,
 };
+use minifb::{Key, Window, WindowOptions};
 #[derive(Clone)]
 pub struct Camera {
     hsize: u64,
@@ -63,28 +64,79 @@ impl Camera {
 
         Ray::new(origin, direction)
     }
-pub fn render(&self, world: World) -> Canvas {
-    let mut image = Canvas::new(self.hsize, self.vsize);
+    pub fn render(&self, world: World) -> Canvas {
+        let mut image = Canvas::new(self.hsize, self.vsize);
 
-    for y in 0..self.vsize {
-        for x in 0..self.hsize {
-            let ray = self.ray_for_pixel(x, y);
+        for y in 0..self.vsize {
+            for x in 0..self.hsize {
+                let ray = self.ray_for_pixel(x, y);
 
-            let color = world.color_at(ray);
+                let color = world.color_at(ray);
 
-            if x % 100 == 0 && y % 100 == 0 {
-                println!(
-                    "({}, {}) -> {:?}",
-                    x, y, color
-                );
+                if x % 100 == 0 && y % 100 == 0 {
+                    println!("({}, {}) -> {:?}", x, y, color);
+                }
+
+                image.write_pixel(x, y, color);
+            }
+        }
+
+        image
+    }
+    pub fn render_screen(&self, world: World) -> Canvas {
+        let mut canvas = Canvas::new(self.hsize, self.vsize);
+
+        let mut window = Window::new(
+            "Ray Tracer - Real Time",
+            self.hsize as usize,
+            self.vsize as usize,
+            WindowOptions::default(),
+        )
+        .unwrap_or_else(|e| {
+            panic!("{}", e);
+        });
+
+        // Limita la tasa de refresco para no saturar CPU
+        window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+
+        let mut buffer: Vec<u32> = vec![0; (self.hsize * self.vsize) as usize];
+
+        let mut current_y: u64 = 0;
+        let mut rendering_done = false;
+
+        while window.is_open() && !window.is_key_down(Key::Escape) {
+            // Renderiza una fila por frame para ver el progreso en tiempo real
+            if !rendering_done && current_y < self.vsize {
+                for x in 0..self.hsize {
+                    let ray = self.ray_for_pixel(x, current_y);
+                    let color = world.color_at(ray);
+
+                    canvas.write_pixel(x, current_y, color);
+
+                    // Convierte el color (0.0-1.0) al formato 0x00RRGGBB de minifb
+                    let r = (color.red * 255.0).clamp(0.0, 255.0) as u32;
+                    let g = (color.green * 255.0).clamp(0.0, 255.0) as u32;
+                    let b = (color.blue * 255.0).clamp(0.0, 255.0) as u32;
+                    let pixel = (r << 16) | (g << 8) | b;
+
+                    buffer[(current_y * self.hsize + x) as usize] = pixel;
+                }
+
+                current_y += 1;
+
+                if current_y >= self.vsize {
+                    rendering_done = true;
+                    println!("Rendering complete!");
+                }
             }
 
-            image.write_pixel(x, y, color);
+            window
+                .update_with_buffer(&buffer, self.hsize as usize, self.vsize as usize)
+                .unwrap();
         }
-    }
 
-    image
-}
+        canvas
+    }
 }
 
 #[cfg(test)]

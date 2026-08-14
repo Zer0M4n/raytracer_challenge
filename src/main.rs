@@ -60,8 +60,10 @@ fn main() {
     left.material.diffuse(0.7);
     left.material.specular(0.3);
 
-    right.transform = (Matrix::traslation(1.5, 0.5, -0.5) * Matrix::scaling(0.5, 0.5, 0.5)).unwrap();
-left.transform = (Matrix::traslation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 0.33, 0.33)).unwrap();
+    right.transform =
+        (Matrix::traslation(1.5, 0.5, -0.5) * Matrix::scaling(0.5, 0.5, 0.5)).unwrap();
+    left.transform =
+        (Matrix::traslation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 0.33, 0.33)).unwrap();
 
     let mut w = World::default();
     w.light = Point_Light::new(Point::new(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
@@ -81,6 +83,6 @@ left.transform = (Matrix::traslation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 
         Vector::new(0.0, 1.0, 0.0),
     );
 
-    let canv = c.render(w);
+    let canv = c.render_screen(w);
     canv.canvas_to_ppm().unwrap();
 }

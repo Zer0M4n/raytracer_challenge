@@ -36,7 +36,7 @@ impl Vector {
     fn div_scalar(&self, scalar: f64) -> Self {
         Vector::new(self.x / scalar, self.y / scalar, self.z / scalar)
     }
-    fn lenght(&self) -> f64 {
+    pub fn lenght(&self) -> f64 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
     }
     pub fn normalization(&self) -> Self {
