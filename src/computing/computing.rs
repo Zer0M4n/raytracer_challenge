@@ -28,7 +28,7 @@ impl<'a> Computing<'a> {
             insidev = false;
         }
 
-        let over_point = comp_p + v * EPSILON;
+        let over_point = comp_p + v * 0.0001;
 
         Computing {
             t: intersection.t,
