@@ -87,7 +87,7 @@ impl World {
 
 #[cfg(test)]
 mod tests {
-    use std::num::IntErrorKind::PosOverflow;
+    use std::{num::IntErrorKind::PosOverflow, ops::Not};
 
     use crate::{
         computing::computing::Computing,
@@ -168,5 +168,44 @@ mod tests {
         let c = w.color_at(r);
 
         assert_eq!(c, w.objects[1].material.color);
+    }
+    #[test]
+    fn the_shadow_when_an_object_is_between_the_point_and_light() {
+        let w = World::default();
+        let p = Point::new(10.0, -10.0, 10.0);
+
+        assert!(w.is_shadowed(p))
+    }
+    #[test]
+    fn there_is_no_shadow_when_an_object_is_behind_the_light() {
+        let w = World::default();
+        let p = Point::new(-20.0, 20.0, -20.0);
+
+        assert!(w.is_shadowed(p).not())
+    }
+    #[test]
+    fn there_is_no_shadow_when_an_object_is_behind_the_point() {
+        let w = World::default();
+        let p = Point::new(-2.0, 2.0, -2.0);
+
+        assert!(w.is_shadowed(p).not())
+    }
+    #[test]
+    fn shade_hit_is_given_an_intersection_in_shadow() {
+        let mut w = World::default();
+        w.light = Point_Light::new(Point::new(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+        w.objects.remove(0);
+        w.objects.remove(0);
+        let s1 = Sphere::new();
+        w.add_object(s1);
+        let mut s2 = Sphere::new();
+        s2.transform = s2.transform.translate(0.0, 0.0, 10.0);
+        w.add_object(s2);
+        let r = Ray::new(Point::new(0.0, 0.0, 5.0), Vector::new(0.0, 0.0, 1.0));
+
+        let i = Intersection::new(4.0, &w.objects[1]);
+        let comps = Computing::prepare_computations(&i, r);
+        let c = w.shade_hit(comps);
+        assert_eq!(c, Color::new(0.1, 0.1, 0.1))
     }
 }

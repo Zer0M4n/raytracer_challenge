@@ -16,6 +16,7 @@ use crate::physics::material::Point_Light;
 use crate::physics::sphere::Sphere;
 use crate::physics::world::World;
 use crate::utils::view_transformation;
+use crate::physics::*;
 use crate::{camera::camera::Camera, physics::material::Material};
 
 fn main() {
