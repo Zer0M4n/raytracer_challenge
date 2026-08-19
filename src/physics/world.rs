@@ -4,12 +4,12 @@ use crate::{
     color::Color,
     computing::computing::Computing,
     math::{matrix::Matrix, point::Point},
-    physics::{intersect::Intersection, material::*, ray::Ray, sphere::Sphere},
+    physics::{intersect::Intersection, material::*, object::Object, ray::Ray, sphere::Sphere},
 };
 
 pub struct World {
     pub light: Point_Light,
-    pub objects: Vec<Sphere>,
+    pub objects: Vec<Object>,
 }
 
 impl World {
@@ -29,10 +29,10 @@ impl World {
 
         World {
             light,
-            objects: vec![s1, s2],
+            objects: vec![Object::Sphere(s1), Object::Sphere(s2)],
         }
     }
-    pub fn add_object(&mut self, object: Sphere) {
+    pub fn add_object(&mut self, object: Object) {
         self.objects.push(object);
     }
     pub fn intersect_world(&self, r: Ray) -> Vec<Intersection<'_>> {
@@ -63,7 +63,8 @@ impl World {
     }
     fn shade_hit(&self, comps: Computing) -> Color {
         let shadowed = self.is_shadowed(comps.over_point);
-        comps.object.material.lighting(
+
+        comps.object.material().lighting(
             &self.light,
             comps.point,
             comps.eyev,
@@ -114,8 +115,8 @@ mod tests {
         s2.set_transform(Matrix::identity(4).scale(0.5, 0.5, 0.5));
 
         assert_eq!(w.light, light);
-        assert!(w.objects.contains(&s1));
-        assert!(w.objects.contains(&s2));
+        assert!(w.objects.contains(&Object::Sphere(s1)));
+        assert!(w.objects.contains(&Object::Sphere(s2)));
     }
     #[test]
     fn intersect_a_world_with_a_ray() {
@@ -160,14 +161,14 @@ mod tests {
     fn the_color_with_an_intersection_behind_the_ray() {
         let mut w = World::default();
 
-        w.objects[0].material.ambient(1.0); // outer
-        w.objects[1].material.ambient(1.0); // inner
+        w.objects[0].material_mut().ambient(1.0); // outer
+        w.objects[1].material_mut().ambient(1.0); // inner
 
         let r = Ray::new(Point::new(0.0, 0.0, 0.75), Vector::new(0.0, 0.0, -1.0));
 
         let c = w.color_at(r);
 
-        assert_eq!(c, w.objects[1].material.color);
+        assert_eq!(c, w.objects[1].material().color);
     }
     #[test]
     fn the_shadow_when_an_object_is_between_the_point_and_light() {
@@ -191,21 +192,33 @@ mod tests {
         assert!(w.is_shadowed(p).not())
     }
     #[test]
+    #[test]
     fn shade_hit_is_given_an_intersection_in_shadow() {
         let mut w = World::default();
+
         w.light = Point_Light::new(Point::new(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
-        w.objects.remove(0);
-        w.objects.remove(0);
+
+        // Eliminar las dos esferas del mundo por defecto
+        w.objects.clear();
+
+        // Primera esfera
         let s1 = Sphere::new();
-        w.add_object(s1);
+        w.add_object(Object::Sphere(s1));
+
+        // Segunda esfera
         let mut s2 = Sphere::new();
         s2.transform = s2.transform.translate(0.0, 0.0, 10.0);
-        w.add_object(s2);
+
+        w.add_object(Object::Sphere(s2));
+
         let r = Ray::new(Point::new(0.0, 0.0, 5.0), Vector::new(0.0, 0.0, 1.0));
 
         let i = Intersection::new(4.0, &w.objects[1]);
+
         let comps = Computing::prepare_computations(&i, r);
+
         let c = w.shade_hit(comps);
-        assert_eq!(c, Color::new(0.1, 0.1, 0.1))
+
+        assert_eq!(c, Color::new(0.1, 0.1, 0.1));
     }
 }

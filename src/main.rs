@@ -13,6 +13,7 @@ use crate::math::matrix::Matrix;
 use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::material::Point_Light;
+use crate::physics::object::Object;
 use crate::physics::sphere::Sphere;
 use crate::physics::world::World;
 use crate::physics::*;
@@ -70,12 +71,12 @@ fn main() {
     w.light = Point_Light::new(Point::new(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     w.objects.remove(0);
     w.objects.remove(0);
-    w.add_object(floor);
-    w.add_object(left_wall);
-    w.add_object(right_wall);
-    w.add_object(middle);
-    w.add_object(right);
-    w.add_object(left);
+    w.add_object(Object::Sphere(floor));
+    w.add_object(Object::Sphere(left_wall));
+    w.add_object(Object::Sphere(right_wall));
+    w.add_object(Object::Sphere(middle));
+    w.add_object(Object::Sphere(right));
+    w.add_object(Object::Sphere(left));
 
     let mut c = Camera::new(1000, 500, PI / 3.0);
     c.transform = view_transformation(

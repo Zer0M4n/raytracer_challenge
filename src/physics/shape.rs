@@ -43,7 +43,7 @@ impl Shape {
 mod tests {
     use std::f64::consts::PI;
 
-use crate::math::{point::Point, vector::Vector};
+    use crate::math::{point::Point, vector::Vector};
 
     use super::*;
     #[test]

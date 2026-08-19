@@ -277,11 +277,11 @@ impl Matrix {
         self
     }
 
-pub fn rotate_z(self, radians: f64) -> Self {
-    let rotation = Matrix::rotation_z(radians);
+    pub fn rotate_z(self, radians: f64) -> Self {
+        let rotation = Matrix::rotation_z(radians);
 
-    (self * rotation).unwrap()
-}
+        (self * rotation).unwrap()
+    }
     pub fn shear(mut self, x: f64, x2: f64, y: f64, y2: f64, z: f64, z2: f64) -> Self {
         self = (Matrix::shearing(x, x2, y, y2, z, z2) * self).unwrap();
         self

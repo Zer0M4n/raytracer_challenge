@@ -26,7 +26,7 @@ impl Ray {
 #[cfg(test)]
 mod tests {
 
-    use crate::physics::sphere::Sphere;
+    use crate::physics::{object::Object, sphere::Sphere};
 
     use super::*;
 
@@ -43,8 +43,9 @@ mod tests {
     fn ray_intersects_a_sphere_at_two_points() {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let s = Sphere::new();
+                let object = Object::Sphere(s);
 
-        let xs = s.intersect(r);
+        let xs = object.intersect(r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 4.0);
         assert_eq!(xs[1].t, 6.0);
@@ -53,8 +54,9 @@ mod tests {
     fn ray_intersects_a_sphere_at_a_tangent() {
         let r = Ray::new(Point::new(0.0, 1.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let s = Sphere::new();
+        let object = Object::Sphere(s);
 
-        let xs = s.intersect(r);
+        let xs = object.intersect(r);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 5.0);
@@ -64,16 +66,18 @@ mod tests {
     fn ray_misses_a_sphere() {
         let r = Ray::new(Point::new(0.0, 2.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let s = Sphere::new();
+        let object = Object::Sphere(s);
 
-        let xs = s.intersect(r);
+        let xs = object.intersect(r);
         assert_eq!(xs.len(), 0);
     }
     #[test]
     fn ray_originates_inside_a_sphere() {
         let r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 1.0));
         let s = Sphere::new();
+        let object = Object::Sphere(s);
 
-        let xs = s.intersect(r);
+        let xs = object.intersect(r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -1.0);
         assert_eq!(xs[1].t, 1.0);
@@ -82,8 +86,9 @@ mod tests {
     fn sphere_is_behind_a_ray() {
         let r = Ray::new(Point::new(0.0, 0.0, 5.0), Vector::new(0.0, 0.0, 1.0));
         let s = Sphere::new();
+        let object = Object::Sphere(s);
 
-        let xs = s.intersect(r);
+        let xs = object.intersect(r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -6.0);
         assert_eq!(xs[1].t, -4.0);
