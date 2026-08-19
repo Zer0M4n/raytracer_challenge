@@ -30,7 +30,7 @@ impl Canvas {
     }
 
     pub fn canvas_to_ppm(&self) -> std::io::Result<()> {
-        let file = File::create("img/first_image_shadow.ppm")?;
+        let file = File::create("img/first_image_with_plane.ppm")?;
         let mut w = BufWriter::new(file);
 
         writeln!(w, "P3")?;

@@ -14,6 +14,7 @@ use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::material::Point_Light;
 use crate::physics::object::Object;
+use crate::physics::plane::Plane;
 use crate::physics::sphere::Sphere;
 use crate::physics::world::World;
 use crate::physics::*;
@@ -21,27 +22,12 @@ use crate::utils::view_transformation;
 use crate::{camera::camera::Camera, physics::material::Material};
 
 fn main() {
-    let mut floor = Sphere::new();
-    floor.transform = floor.transform.scale(10.0, 0.01, 10.0);
-    floor.material = Material::default();
-    floor.material.color(Color::new(1.0, 0.9, 0.9));
-    floor.material.specular(0.0);
+let mut floor = Plane::new();
+floor.material.color(Color::new(1.0, 0.9, 0.9));
+floor.material.specular(0.0);
 
-    let mut left_wall = Sphere::new();
-    left_wall.transform = (Matrix::traslation(0.0, 0.0, 5.0)
-        * ((Matrix::rotation_y(-PI / 4.0) * Matrix::rotation_x(PI / 2.0)).unwrap()
-            * Matrix::scaling(10.0, 0.01, 10.0))
-        .unwrap())
-    .unwrap();
-    left_wall.material = floor.material.clone();
-
-    let mut right_wall = Sphere::new();
-    right_wall.transform = (Matrix::traslation(0.0, 0.0, 5.0)
-        * ((Matrix::rotation_y(PI / 4.0) * Matrix::rotation_x(PI / 2.0)).unwrap()
-            * Matrix::scaling(10.0, 0.01, 10.0))
-        .unwrap())
-    .unwrap();
-    right_wall.material = floor.material.clone();
+    
+    
 
     let mut middle = Sphere::new();
     middle.transform = Matrix::traslation(-0.5, 1.0, 0.5);
@@ -71,9 +57,9 @@ fn main() {
     w.light = Point_Light::new(Point::new(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     w.objects.remove(0);
     w.objects.remove(0);
-    w.add_object(Object::Sphere(floor));
-    w.add_object(Object::Sphere(left_wall));
-    w.add_object(Object::Sphere(right_wall));
+    w.add_object(Object::Plane(floor));
+    // w.add_object(Object::Sphere(left_wall));
+    // w.add_object(Object::Sphere(right_wall));
     w.add_object(Object::Sphere(middle));
     w.add_object(Object::Sphere(right));
     w.add_object(Object::Sphere(left));
