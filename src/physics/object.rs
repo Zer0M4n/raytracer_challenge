@@ -39,7 +39,12 @@ impl Object {
             }
         }
     }
-
+    pub fn is_plane(&self, plane: &Plane) -> bool {
+        match self {
+            Object::Plane(p) => p == plane,
+            _ => false,
+        }
+    }
     pub fn normal_at(&self, world_point: Point) -> Vector {
         match self {
             Object::Sphere(sphere) => sphere.normal_at(world_point),

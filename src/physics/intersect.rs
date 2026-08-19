@@ -1,6 +1,6 @@
 use crate::physics::{object::Object, sphere::Sphere};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Intersection<'a> {
     pub t: f64,
     pub object: &'a Object,

@@ -35,7 +35,7 @@ impl Plane {
 #[cfg(test)]
 mod tests {
 
-    use crate::physics::ray::Ray;
+    use crate::physics::{object::Object, ray::Ray};
 
     use super::*;
 
@@ -58,7 +58,7 @@ mod tests {
 
         let xs = p.local_intersect(r);
 
-        assert!(xs[0].is_finite())
+        assert!(xs.is_empty())
     }
     #[test]
     fn intersect_with_a_coplanar_ray() {
@@ -67,6 +67,26 @@ mod tests {
 
         let xs = p.local_intersect(r);
 
-        assert!(xs[0].is_finite())
+        assert!(xs.is_empty())
+    }
+    #[test]
+    fn a_ray_intersecting_a_plane_from_above() {
+        let p = Plane::new();
+        let r = Ray::new(Point::new(0.0, 1.0, 0.0), Vector::new(0.0, -1.0, 0.0));
+        let object_plane = Object::Plane(p.clone());
+        let xs = object_plane.intersect(r);
+        assert!(xs.len() == 1);
+        assert!(xs[0].t == 1.0);
+        assert!(xs[0].object.is_plane(&p));
+    }
+    #[test]
+    fn a_ray_intersecting_a_plane_from_below() {
+        let p = Plane::new();
+        let r = Ray::new(Point::new(0.0, -1.0, 0.0), Vector::new(0.0, 1.0, 0.0));
+        let object_plane = Object::Plane(p.clone());
+        let xs = object_plane.intersect(r);
+        assert!(xs.len() == 1);
+        assert!(xs[0].t == 1.0);
+        assert!(xs[0].object.is_plane(&p));
     }
 }

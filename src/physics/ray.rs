@@ -43,7 +43,7 @@ mod tests {
     fn ray_intersects_a_sphere_at_two_points() {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let s = Sphere::new();
-                let object = Object::Sphere(s);
+        let object = Object::Sphere(s);
 
         let xs = object.intersect(r);
         assert_eq!(xs.len(), 2);

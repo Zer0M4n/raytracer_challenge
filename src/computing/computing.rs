@@ -55,7 +55,7 @@ mod tests {
     fn precomputing_the_state_of_an_intersection() {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let shape = Sphere::new();
-                let object = Object::Sphere(shape);
+        let object = Object::Sphere(shape);
 
         let i = Intersection::new(4.0, &object);
 
@@ -71,7 +71,7 @@ mod tests {
     fn the_hit_when_an_intersection_occurs_on_the_outside() {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let shape = Sphere::new();
-                let object = Object::Sphere(shape);
+        let object = Object::Sphere(shape);
 
         let i = Intersection::new(4.0, &object);
 
@@ -84,7 +84,7 @@ mod tests {
     fn the_hit_when_an_intersection_occurs_on_the_inside() {
         let r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 1.0));
         let shape = Sphere::new();
-                let object = Object::Sphere(shape);
+        let object = Object::Sphere(shape);
 
         let i = Intersection::new(1.0, &object);
 
