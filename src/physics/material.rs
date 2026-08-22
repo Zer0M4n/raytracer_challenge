@@ -4,10 +4,10 @@ use crate::{
         point::{self, Point},
         vector::Vector,
     },
-    physics::type_pattern::TypePattern,
+    physics::{object::Object, type_pattern::TypePattern},
 };
 
-#[derive(Debug, Clone, PartialEq, Copy)]
+#[derive(Debug, Clone, PartialEq)]
 
 pub struct Material {
     pub color: Color,
@@ -42,9 +42,8 @@ impl Material {
         eyev: Vector,
         normalv: Vector,
         in_shadow: bool,
+        obj: Option<&Object>,
     ) -> Color {
-        
-
         // combine the surface color with the light's color/intensity
         let effective_color = self.color * light.intensity;
 
@@ -56,9 +55,11 @@ impl Material {
         if in_shadow {
             return ambient;
         }
-        if let Some(pattern) = self.pattern {
-            return pattern.at(point) + ambient
-        } ;
+        if let Some(pattern) = &self.pattern {
+            if let Some(obj) = obj {
+                return pattern.at(obj, point);
+            }
+        }
         let diffuse: Color;
         let specular: Color;
 
@@ -117,7 +118,7 @@ impl Point_Light {
 
 #[cfg(test)]
 mod tests {
-    use crate::physics::type_pattern::Stripe_Pattern;
+    use crate::physics::{sphere::Sphere, type_pattern::Stripe_Pattern};
 
     use super::*;
     #[test]
@@ -139,30 +140,50 @@ mod tests {
         let material = Material::default();
         let light = Point_Light::new(Point::new(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = material.lighting(&light, point, eyev, normalv, true);
+        let result = material.lighting(&light, point, eyev, normalv, true, None);
 
         assert_eq!(result, Color::new(0.1, 0.1, 0.1))
     }
-    #[test]
-    pub fn lighting_with_a_pattern_applied() {
-        let mut m = Material::default();
-        let stripe = Stripe_Pattern::new();
-        m.pattern = Some(TypePattern::Stripe_Pattern(stripe));
-        m.ambient(1.0);
-        m.diffuse(0.0);
-        m.specular(0.0);
-        let eyev = Vector::new(0.0, 0.0, -1.0);
-        let normalv = Vector::new(0.0, 0.0, -1.0);
+ #[test]
+fn lighting_with_a_pattern_applied() {
+    let mut m = Material::default();
 
-        let light = Point_Light::new(
-            Point::new(0.0, 0.0, -10.0), 
-            Color::new(1.0, 1.0, 1.0)
-        );
+    let stripe = Stripe_Pattern::new();
+    m.pattern = Some(TypePattern::Stripe_Pattern(stripe));
 
-        let c1 = m.lighting(&light, Point::new(0.9, 0.0, 0.0), eyev, normalv, false);
-        let c2 = m.lighting(&light, Point::new(1.1, 0.0, 0.0), eyev, normalv, false);
-        
-        assert_eq!(c1, Color::new(1.0, 1.0, 1.0));
-        assert_eq!(c2, Color::new(0.0, 0.0, 0.0));
-    }
+    m.ambient(1.0);
+    m.diffuse(0.0);
+    m.specular(0.0);
+
+    let object = Object::Sphere(Sphere::new());
+
+    let eyev = Vector::new(0.0, 0.0, -1.0);
+    let normalv = Vector::new(0.0, 0.0, -1.0);
+
+    let light = Point_Light::new(
+        Point::new(0.0, 0.0, -10.0),
+        Color::new(1.0, 1.0, 1.0),
+    );
+
+    let c1 = m.lighting(
+        &light,
+        Point::new(0.9, 0.0, 0.0),
+        eyev,
+        normalv,
+        false,
+        Some(&object),
+    );
+
+    let c2 = m.lighting(
+        &light,
+        Point::new(1.1, 0.0, 0.0),
+        eyev,
+        normalv,
+        false,
+        Some(&object),
+    );
+
+    assert_eq!(c1, Color::new(1.0, 1.0, 1.0));
+    assert_eq!(c2, Color::new(0.0, 0.0, 0.0));
+}
 }

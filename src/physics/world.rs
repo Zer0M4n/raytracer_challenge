@@ -1,5 +1,3 @@
-use minifb::Key::C;
-
 use crate::{
     color::Color,
     computing::computing::Computing,
@@ -70,6 +68,7 @@ impl World {
             comps.eyev,
             comps.normalv,
             shadowed,
+            Some(&comps.object),
         )
     }
     pub fn color_at(&self, ray: Ray) -> Color {

@@ -1,5 +1,5 @@
 use crate::{
-    math::{point::Point, vector::Vector},
+    math::{matrix::Matrix, point::Point, vector::Vector},
     physics::{
         intersect::Intersection, material::Material, plane::Plane, ray::Ray, sphere::Sphere,
     },
@@ -55,6 +55,12 @@ impl Object {
         match self {
             Object::Sphere(sphere) => &sphere.material,
             Object::Plane(plane) => &plane.material,
+        }
+    }
+    pub fn get_transform(&self) -> &Matrix {
+        match self {
+            Object::Sphere(sphere) => &sphere.transform,
+            Object::Plane(plane) => &plane.transform,
         }
     }
     pub fn material_mut(&mut self) -> &mut Material {
