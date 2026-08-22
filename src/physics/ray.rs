@@ -26,7 +26,7 @@ impl Ray {
 #[cfg(test)]
 mod tests {
 
-    use crate::physics::{object::Object, sphere::Sphere};
+    use crate::physics::{object::Object, shape_collection::sphere::Sphere};
 
     use super::*;
 

@@ -1,4 +1,4 @@
-use crate::physics::{object::Object, sphere::Sphere};
+use crate::physics::{object::Object, shape_collection::sphere::Sphere};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Intersection<'a> {

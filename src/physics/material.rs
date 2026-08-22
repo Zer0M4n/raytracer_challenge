@@ -118,7 +118,7 @@ impl Point_Light {
 
 #[cfg(test)]
 mod tests {
-    use crate::physics::{sphere::Sphere, type_pattern::Stripe_Pattern};
+    use crate::physics::{shape_collection::sphere::Sphere, type_pattern::Stripe_Pattern};
 
     use super::*;
     #[test]

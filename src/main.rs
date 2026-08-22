@@ -14,8 +14,7 @@ use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::material::Point_Light;
 use crate::physics::object::Object;
-use crate::physics::plane::Plane;
-use crate::physics::sphere::Sphere;
+use crate::physics::shape_collection::sphere::Sphere;
 use crate::physics::type_pattern::{Stripe_Pattern, TypePattern};
 use crate::physics::world::World;
 use crate::physics::*;
@@ -23,7 +22,7 @@ use crate::utils::view_transformation;
 use crate::{camera::camera::Camera, physics::material::Material};
 
 fn main() {
-    let mut floor = Plane::new();
+    let mut floor = shape_collection::plane::Plane::new();
     floor.material.color(Color::new(1.0, 0.9, 0.9));
     floor.material.specular(0.0);
 

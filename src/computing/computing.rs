@@ -2,7 +2,7 @@ use std::f64::EPSILON;
 
 use crate::{
     math::{point::Point, vector::Vector},
-    physics::{intersect::Intersection, object::Object, ray::Ray, sphere::Sphere},
+    physics::{intersect::Intersection, object::Object, ray::Ray, shape_collection::sphere::Sphere},
 };
 
 #[derive(Debug, Clone, PartialEq)]

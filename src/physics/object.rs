@@ -1,14 +1,17 @@
+
 use crate::{
     math::{matrix::Matrix, point::Point, vector::Vector},
     physics::{
-        intersect::Intersection, material::Material, plane::Plane, ray::Ray, sphere::Sphere,
+        intersect::Intersection, material::Material, ray::Ray, shape_collection::*,
     },
 };
 
+
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Object {
-    Sphere(Sphere),
-    Plane(Plane),
+    Sphere(sphere::Sphere),
+    Plane(plane::Plane),
 }
 
 impl Object {
@@ -39,7 +42,7 @@ impl Object {
             }
         }
     }
-    pub fn is_plane(&self, plane: &Plane) -> bool {
+    pub fn is_plane(&self, plane: &plane::Plane) -> bool {
         match self {
             Object::Plane(p) => p == plane,
             _ => false,

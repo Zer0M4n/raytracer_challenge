@@ -2,7 +2,7 @@ use crate::{
     color::Color,
     computing::computing::Computing,
     math::{matrix::Matrix, point::Point},
-    physics::{intersect::Intersection, material::*, object::Object, ray::Ray, sphere::Sphere},
+    physics::{intersect::Intersection, material::*, object::Object, ray::Ray, shape_collection::sphere::Sphere},
 };
 
 pub struct World {
@@ -92,7 +92,7 @@ mod tests {
     use crate::{
         computing::computing::Computing,
         math::{matrix::Matrix, vector::Vector},
-        physics::{material::Material, ray::Ray, sphere},
+        physics::{material::Material, ray::Ray, shape_collection::sphere::Sphere},
     };
 
     use super::*;

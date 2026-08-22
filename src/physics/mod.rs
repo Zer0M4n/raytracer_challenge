@@ -1,9 +1,8 @@
 pub mod intersect;
 pub mod material;
 pub mod object;
-pub mod plane;
 pub mod ray;
 pub mod shape;
-pub mod sphere;
+pub mod shape_collection;
 pub mod type_pattern;
 pub mod world;
