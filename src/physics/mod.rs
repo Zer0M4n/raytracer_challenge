@@ -5,4 +5,5 @@ pub mod plane;
 pub mod ray;
 pub mod shape;
 pub mod sphere;
+pub mod type_pattern;
 pub mod world;
