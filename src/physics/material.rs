@@ -43,9 +43,7 @@ impl Material {
         normalv: Vector,
         in_shadow: bool,
     ) -> Color {
-        if let Some(pattern) = self.pattern {
-            return pattern.at(point)
-        } ;
+        
 
         // combine the surface color with the light's color/intensity
         let effective_color = self.color * light.intensity;
@@ -58,6 +56,9 @@ impl Material {
         if in_shadow {
             return ambient;
         }
+        if let Some(pattern) = self.pattern {
+            return pattern.at(point) + ambient
+        } ;
         let diffuse: Color;
         let specular: Color;
 

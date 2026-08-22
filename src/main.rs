@@ -23,12 +23,16 @@ use crate::utils::view_transformation;
 use crate::{camera::camera::Camera, physics::material::Material};
 
 fn main() {
-    let mut floor = Plane::new();
+let mut floor = Plane::new();
+floor.material.color(Color::new(1.0, 0.9, 0.9));
+floor.material.specular(0.0);
 
     let stripe = Stripe_Pattern::new();
 
     floor.material.pattern = Some(TypePattern::Stripe_Pattern(stripe));
-    floor.material.specular(0.0);
+
+    
+    
 
     let mut middle = Sphere::new();
     middle.transform = Matrix::traslation(-0.5, 1.0, 0.5);
