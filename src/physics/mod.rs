@@ -4,5 +4,6 @@ pub mod object;
 pub mod ray;
 pub mod shape;
 pub mod shape_collection;
+pub mod patterns_collection;
 pub mod type_pattern;
 pub mod world;
