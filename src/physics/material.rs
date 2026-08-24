@@ -44,38 +44,38 @@ impl Material {
         in_shadow: bool,
         obj: Option<&Object>,
     ) -> Color {
-        // combine the surface color with the light's color/intensity
-        let effective_color = self.color * light.intensity;
+        let surface_color = if let Some(pattern) = &self.pattern {
+            if let Some(obj) = obj {
+                pattern.at(obj, point)
+            } else {
+                self.color
+            }
+        } else {
+            self.color
+        };
 
-        // find the direction to the light source
+        // Color de la superficie * color de la luz
+        let effective_color = surface_color * light.intensity;
+
         let lightv = (light.point - point).normalization();
 
-        // compute the ambient contribution
         let ambient = effective_color * self.ambient;
+
         if in_shadow {
             return ambient;
         }
-        if let Some(pattern) = &self.pattern {
-            if let Some(obj) = obj {
-                return pattern.at(obj, point);
-            }
-        }
+
+        let light_dot_normal = lightv.dot_product(normalv);
+
         let diffuse: Color;
         let specular: Color;
-
-        // light_dot_normal represents the cosine of the angle between the
-        // light vector and the normal vector.
-        let light_dot_normal = lightv.dot_product(normalv);
 
         if light_dot_normal < 0.0 {
             diffuse = Color::new(0.0, 0.0, 0.0);
             specular = Color::new(0.0, 0.0, 0.0);
         } else {
-            // compute the diffuse contribution
             diffuse = effective_color * self.diffuse * light_dot_normal;
 
-            // reflect_dot_eye represents the cosine of the angle between the
-            // reflection vector and the eye vector.
             let reflectv = (-lightv).reflect(normalv);
             let reflect_dot_eye = reflectv.dot_product(eyev);
 
@@ -118,7 +118,9 @@ impl Point_Light {
 
 #[cfg(test)]
 mod tests {
-    use crate::physics::{shape_collection::sphere::Sphere, patterns_collection::stripe_patttern::Stripe_Pattern};
+    use crate::physics::{
+        patterns_collection::stripe_patttern::Stripe_Pattern, shape_collection::sphere::Sphere,
+    };
 
     use super::*;
     #[test]
@@ -144,46 +146,43 @@ mod tests {
 
         assert_eq!(result, Color::new(0.1, 0.1, 0.1))
     }
- #[test]
-fn lighting_with_a_pattern_applied() {
-    let mut m = Material::default();
+    #[test]
+    fn lighting_with_a_pattern_applied() {
+        let mut m = Material::default();
 
-    let stripe = Stripe_Pattern::new();
-    m.pattern = Some(TypePattern::Stripe_Pattern(stripe));
+        let stripe = Stripe_Pattern::new();
+        m.pattern = Some(TypePattern::Stripe_Pattern(stripe));
 
-    m.ambient(1.0);
-    m.diffuse(0.0);
-    m.specular(0.0);
+        m.ambient(1.0);
+        m.diffuse(0.0);
+        m.specular(0.0);
 
-    let object = Object::Sphere(Sphere::new());
+        let object = Object::Sphere(Sphere::new());
 
-    let eyev = Vector::new(0.0, 0.0, -1.0);
-    let normalv = Vector::new(0.0, 0.0, -1.0);
+        let eyev = Vector::new(0.0, 0.0, -1.0);
+        let normalv = Vector::new(0.0, 0.0, -1.0);
 
-    let light = Point_Light::new(
-        Point::new(0.0, 0.0, -10.0),
-        Color::new(1.0, 1.0, 1.0),
-    );
+        let light = Point_Light::new(Point::new(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
-    let c1 = m.lighting(
-        &light,
-        Point::new(0.9, 0.0, 0.0),
-        eyev,
-        normalv,
-        false,
-        Some(&object),
-    );
+        let c1 = m.lighting(
+            &light,
+            Point::new(0.9, 0.0, 0.0),
+            eyev,
+            normalv,
+            false,
+            Some(&object),
+        );
 
-    let c2 = m.lighting(
-        &light,
-        Point::new(1.1, 0.0, 0.0),
-        eyev,
-        normalv,
-        false,
-        Some(&object),
-    );
+        let c2 = m.lighting(
+            &light,
+            Point::new(1.1, 0.0, 0.0),
+            eyev,
+            normalv,
+            false,
+            Some(&object),
+        );
 
-    assert_eq!(c1, Color::new(1.0, 1.0, 1.0));
-    assert_eq!(c2, Color::new(0.0, 0.0, 0.0));
-}
+        assert_eq!(c1, Color::new(1.0, 1.0, 1.0));
+        assert_eq!(c2, Color::new(0.0, 0.0, 0.0));
+    }
 }

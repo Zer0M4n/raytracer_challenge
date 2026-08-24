@@ -1,12 +1,7 @@
-
 use crate::{
     math::{matrix::Matrix, point::Point, vector::Vector},
-    physics::{
-        intersect::Intersection, material::Material, ray::Ray, shape_collection::*,
-    },
+    physics::{intersect::Intersection, material::Material, ray::Ray, shape_collection::*},
 };
-
-
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Object {

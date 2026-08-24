@@ -1,6 +1,8 @@
-use crate::{color::Color, math::{matrix::Matrix, point::Point}, physics::object::Object};
-
-
+use crate::{
+    color::Color,
+    math::{matrix::Matrix, point::Point},
+    physics::object::Object,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Stripe_Pattern {

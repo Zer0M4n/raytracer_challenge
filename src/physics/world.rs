@@ -2,7 +2,10 @@ use crate::{
     color::Color,
     computing::computing::Computing,
     math::{matrix::Matrix, point::Point},
-    physics::{intersect::Intersection, material::*, object::Object, ray::Ray, shape_collection::sphere::Sphere},
+    physics::{
+        intersect::Intersection, material::*, object::Object, ray::Ray,
+        shape_collection::sphere::Sphere,
+    },
 };
 
 pub struct World {
