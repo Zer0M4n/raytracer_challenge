@@ -15,6 +15,7 @@ use crate::math::vector::Vector;
 use crate::physics::material::Point_Light;
 use crate::physics::object::Object;
 use crate::physics::patterns_collection::gradient_pattern::Gradient_Pattern;
+use crate::physics::patterns_collection::ring_pattern::Ring_Pattern;
 use crate::physics::patterns_collection::stripe_patttern::Stripe_Pattern;
 use crate::physics::shape_collection::sphere::Sphere;
 use crate::physics::type_pattern::TypePattern;
@@ -28,9 +29,9 @@ fn main() {
     floor.material.color(Color::new(1.0, 0.9, 0.9));
     floor.material.specular(0.0);
 
-    let gradient = Gradient_Pattern::new();
+    let ring = Ring_Pattern::new();
 
-    //floor.material.pattern = Some(TypePattern::Gradient_Pattern(gradient));
+    floor.material.pattern = Some(TypePattern::Ring_Pattern(ring));
 
     let mut middle = Sphere::new();
     middle.transform = Matrix::traslation(-0.5, 1.0, 0.5);
@@ -38,7 +39,7 @@ fn main() {
     middle.material.color(Color::new(0.1, 1.0, 0.5));
     middle.material.diffuse(0.7);
     middle.material.specular(0.3);
-    middle.material.pattern = Some(TypePattern::Gradient_Pattern(gradient));
+    //middle.material.pattern = Some(TypePattern::Ring_Pattern(ring));
 
     let mut right = Sphere::new();
     right.material = Material::default();
