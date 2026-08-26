@@ -34,92 +34,91 @@ impl Material {
             shininess: 200.0,
             pattern: None,
         }
-    }pub fn lighting(
-    &self,
-    light: &Point_Light,
-    point: Point,
-    eyev: Vector,
-    normalv: Vector,
-    in_shadow: bool,
-    obj: Option<&Object>,
-) -> Color {
-    // --------------------------------------------------
-    // 1. Obtener el color de la superficie
-    // --------------------------------------------------
-    let surface_color = if let Some(pattern) = &self.pattern {
-        if let Some(obj) = obj {
-            pattern.at(obj, point)
+    }
+    pub fn lighting(
+        &self,
+        light: &Point_Light,
+        point: Point,
+        eyev: Vector,
+        normalv: Vector,
+        in_shadow: bool,
+        obj: Option<&Object>,
+    ) -> Color {
+        // --------------------------------------------------
+        // 1. Obtener el color de la superficie
+        // --------------------------------------------------
+        let surface_color = if let Some(pattern) = &self.pattern {
+            if let Some(obj) = obj {
+                pattern.at(obj, point)
+            } else {
+                self.color
+            }
         } else {
             self.color
+        };
+
+        // --------------------------------------------------
+        // 2. Color de superficie * intensidad de la luz
+        // --------------------------------------------------
+        let effective_color = surface_color * light.intensity;
+
+        // --------------------------------------------------
+        // 3. Dirección hacia la luz
+        // --------------------------------------------------
+        let lightv = (light.point - point).normalization();
+
+        // --------------------------------------------------
+        // 4. Componente ambiental
+        // --------------------------------------------------
+        let ambient = effective_color * self.ambient;
+
+        // Si está en sombra solamente recibe ambient
+        if in_shadow {
+            return ambient;
         }
-    } else {
-        self.color
-    };
-
-    // --------------------------------------------------
-    // 2. Color de superficie * intensidad de la luz
-    // --------------------------------------------------
-    let effective_color = surface_color * light.intensity;
-
-    // --------------------------------------------------
-    // 3. Dirección hacia la luz
-    // --------------------------------------------------
-    let lightv = (light.point - point).normalization();
-
-    // --------------------------------------------------
-    // 4. Componente ambiental
-    // --------------------------------------------------
-    let ambient = effective_color * self.ambient;
-
-    // Si está en sombra solamente recibe ambient
-    if in_shadow {
-        return ambient;
-    }
-
-    // --------------------------------------------------
-    // 5. Ángulo entre luz y normal
-    // --------------------------------------------------
-    let light_dot_normal = lightv.dot_product(normalv);
-
-    let diffuse: Color;
-    let specular: Color;
-
-    if light_dot_normal < 0.0 {
-        // La luz está detrás de la superficie
-        diffuse = Color::new(0.0, 0.0, 0.0);
-        specular = Color::new(0.0, 0.0, 0.0);
-    } else {
-        // --------------------------------------------------
-        // 6. Diffuse
-        // --------------------------------------------------
-        diffuse =
-            effective_color * self.diffuse * light_dot_normal;
 
         // --------------------------------------------------
-        // 7. Reflection
+        // 5. Ángulo entre luz y normal
         // --------------------------------------------------
-        let reflectv = (-lightv).reflect(normalv);
+        let light_dot_normal = lightv.dot_product(normalv);
 
-        let reflect_dot_eye = reflectv.dot_product(eyev);
+        let diffuse: Color;
+        let specular: Color;
 
-        if reflect_dot_eye <= 0.0 {
+        if light_dot_normal < 0.0 {
+            // La luz está detrás de la superficie
+            diffuse = Color::new(0.0, 0.0, 0.0);
             specular = Color::new(0.0, 0.0, 0.0);
         } else {
             // --------------------------------------------------
-            // 8. Specular
+            // 6. Diffuse
             // --------------------------------------------------
-            let factor = reflect_dot_eye.powf(self.shininess);
+            diffuse = effective_color * self.diffuse * light_dot_normal;
 
-            specular =
-                light.intensity * self.specular * factor;
+            // --------------------------------------------------
+            // 7. Reflection
+            // --------------------------------------------------
+            let reflectv = (-lightv).reflect(normalv);
+
+            let reflect_dot_eye = reflectv.dot_product(eyev);
+
+            if reflect_dot_eye <= 0.0 {
+                specular = Color::new(0.0, 0.0, 0.0);
+            } else {
+                // --------------------------------------------------
+                // 8. Specular
+                // --------------------------------------------------
+                let factor = reflect_dot_eye.powf(self.shininess);
+
+                specular = light.intensity * self.specular * factor;
+            }
         }
-    }
 
-    // --------------------------------------------------
-    // 9. Resultado final
-    // --------------------------------------------------
-    ambient + diffuse + specular
-}
+        // --------------------------------------------------
+        // 9. Resultado final
+        // --------------------------------------------------
+        ambient + diffuse + specular
+    }
     pub fn color(&mut self, c: Color) {
         self.color = c;
     }

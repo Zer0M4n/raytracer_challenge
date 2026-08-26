@@ -30,9 +30,9 @@ fn main() {
     floor.material.color(Color::new(1.0, 0.9, 0.9));
     floor.material.specular(0.0);
 
-    let ring = Checker3DPattern::new();
+    let ring = Ring_Pattern::new();
 
-   // floor.material.pattern = Some(TypePattern::Checker3DPattern(ring));
+    // floor.material.pattern = Some(TypePattern::Checker3DPattern(ring));
 
     let mut middle = Sphere::new();
     middle.transform = Matrix::traslation(-0.4, 1.0, 0.5);
@@ -40,7 +40,7 @@ fn main() {
     middle.material.color(Color::new(1.0, 0.04, 0.003));
     middle.material.diffuse(0.7);
     middle.material.specular(0.3);
-    middle.material.pattern = Some(TypePattern::Checker3DPattern(ring));
+    middle.material.pattern = Some(TypePattern::Ring_Pattern(ring));
 
     let mut right = Sphere::new();
     right.material = Material::default();

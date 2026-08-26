@@ -15,7 +15,7 @@ impl Ring_Pattern {
     pub fn new() -> Self {
         let a = Color::new(1.0, 0.0, 0.0);
         let b = Color::new(0.0, 0.0, 1.0);
-        let transform = Matrix::identity(4);
+        let transform: Matrix = Matrix::scaling(0.25, 0.25, 0.25);
 
         Ring_Pattern { a, b, transform }
     }
