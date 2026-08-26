@@ -34,61 +34,92 @@ impl Material {
             shininess: 200.0,
             pattern: None,
         }
-    }
-    pub fn lighting(
-        &self,
-        light: &Point_Light,
-        point: Point,
-        eyev: Vector,
-        normalv: Vector,
-        in_shadow: bool,
-        obj: Option<&Object>,
-    ) -> Color {
-        let surface_color = if let Some(pattern) = &self.pattern {
-            if let Some(obj) = obj {
-                pattern.at(obj, point)
-            } else {
-                self.color
-            }
+    }pub fn lighting(
+    &self,
+    light: &Point_Light,
+    point: Point,
+    eyev: Vector,
+    normalv: Vector,
+    in_shadow: bool,
+    obj: Option<&Object>,
+) -> Color {
+    // --------------------------------------------------
+    // 1. Obtener el color de la superficie
+    // --------------------------------------------------
+    let surface_color = if let Some(pattern) = &self.pattern {
+        if let Some(obj) = obj {
+            pattern.at(obj, point)
         } else {
             self.color
-        };
-
-        // Color de la superficie * color de la luz
-        let effective_color = surface_color * light.intensity;
-
-        let lightv = (light.point - point).normalization();
-
-        let ambient = effective_color * self.ambient;
-
-        if in_shadow {
-            return ambient;
         }
+    } else {
+        self.color
+    };
 
-        let light_dot_normal = lightv.dot_product(normalv);
+    // --------------------------------------------------
+    // 2. Color de superficie * intensidad de la luz
+    // --------------------------------------------------
+    let effective_color = surface_color * light.intensity;
 
-        let diffuse: Color;
-        let specular: Color;
+    // --------------------------------------------------
+    // 3. Dirección hacia la luz
+    // --------------------------------------------------
+    let lightv = (light.point - point).normalization();
 
-        if light_dot_normal < 0.0 {
-            diffuse = Color::new(0.0, 0.0, 0.0);
+    // --------------------------------------------------
+    // 4. Componente ambiental
+    // --------------------------------------------------
+    let ambient = effective_color * self.ambient;
+
+    // Si está en sombra solamente recibe ambient
+    if in_shadow {
+        return ambient;
+    }
+
+    // --------------------------------------------------
+    // 5. Ángulo entre luz y normal
+    // --------------------------------------------------
+    let light_dot_normal = lightv.dot_product(normalv);
+
+    let diffuse: Color;
+    let specular: Color;
+
+    if light_dot_normal < 0.0 {
+        // La luz está detrás de la superficie
+        diffuse = Color::new(0.0, 0.0, 0.0);
+        specular = Color::new(0.0, 0.0, 0.0);
+    } else {
+        // --------------------------------------------------
+        // 6. Diffuse
+        // --------------------------------------------------
+        diffuse =
+            effective_color * self.diffuse * light_dot_normal;
+
+        // --------------------------------------------------
+        // 7. Reflection
+        // --------------------------------------------------
+        let reflectv = (-lightv).reflect(normalv);
+
+        let reflect_dot_eye = reflectv.dot_product(eyev);
+
+        if reflect_dot_eye <= 0.0 {
             specular = Color::new(0.0, 0.0, 0.0);
         } else {
-            diffuse = effective_color * self.diffuse * light_dot_normal;
+            // --------------------------------------------------
+            // 8. Specular
+            // --------------------------------------------------
+            let factor = reflect_dot_eye.powf(self.shininess);
 
-            let reflectv = (-lightv).reflect(normalv);
-            let reflect_dot_eye = reflectv.dot_product(eyev);
-
-            if reflect_dot_eye <= 0.0 {
-                specular = Color::new(0.0, 0.0, 0.0);
-            } else {
-                let factor = reflect_dot_eye.powf(self.shininess);
-                specular = light.intensity * self.specular * factor;
-            }
+            specular =
+                light.intensity * self.specular * factor;
         }
-
-        ambient + diffuse + specular
     }
+
+    // --------------------------------------------------
+    // 9. Resultado final
+    // --------------------------------------------------
+    ambient + diffuse + specular
+}
     pub fn color(&mut self, c: Color) {
         self.color = c;
     }

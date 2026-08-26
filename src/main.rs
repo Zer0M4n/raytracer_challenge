@@ -14,6 +14,7 @@ use crate::math::point::Point;
 use crate::math::vector::Vector;
 use crate::physics::material::Point_Light;
 use crate::physics::object::Object;
+use crate::physics::patterns_collection::checker3d_pattern::Checker3DPattern;
 use crate::physics::patterns_collection::gradient_pattern::Gradient_Pattern;
 use crate::physics::patterns_collection::ring_pattern::Ring_Pattern;
 use crate::physics::patterns_collection::stripe_patttern::Stripe_Pattern;
@@ -29,17 +30,17 @@ fn main() {
     floor.material.color(Color::new(1.0, 0.9, 0.9));
     floor.material.specular(0.0);
 
-    let ring = Ring_Pattern::new();
+    let ring = Checker3DPattern::new();
 
-    floor.material.pattern = Some(TypePattern::Ring_Pattern(ring));
+   // floor.material.pattern = Some(TypePattern::Checker3DPattern(ring));
 
     let mut middle = Sphere::new();
-    middle.transform = Matrix::traslation(-0.5, 1.0, 0.5);
+    middle.transform = Matrix::traslation(-0.4, 1.0, 0.5);
     middle.material = Material::default();
-    middle.material.color(Color::new(0.1, 1.0, 0.5));
+    middle.material.color(Color::new(1.0, 0.04, 0.003));
     middle.material.diffuse(0.7);
     middle.material.specular(0.3);
-    //middle.material.pattern = Some(TypePattern::Ring_Pattern(ring));
+    middle.material.pattern = Some(TypePattern::Checker3DPattern(ring));
 
     let mut right = Sphere::new();
     right.material = Material::default();

@@ -4,8 +4,8 @@ use crate::{
     physics::{
         object::Object,
         patterns_collection::{
-            self, gradient_pattern::Gradient_Pattern, ring_pattern::Ring_Pattern,
-            stripe_patttern::Stripe_Pattern,
+            self, checker3d_pattern::Checker3DPattern, gradient_pattern::Gradient_Pattern,
+            ring_pattern::Ring_Pattern, stripe_patttern::Stripe_Pattern,
         },
         world::World,
     },
@@ -16,6 +16,7 @@ pub enum TypePattern {
     Stripe_Pattern(Stripe_Pattern),
     Gradient_Pattern(Gradient_Pattern),
     Ring_Pattern(Ring_Pattern),
+    Checker3DPattern(Checker3DPattern),
 }
 
 impl TypePattern {
@@ -31,6 +32,7 @@ impl TypePattern {
                 gradient.gradient_at_object(object, world_point)
             }
             TypePattern::Ring_Pattern(ring) => ring.ring_at_object(object, world_point),
+            TypePattern::Checker3DPattern(check) => check.checker_at_object(object, world_point),
         }
     }
 }

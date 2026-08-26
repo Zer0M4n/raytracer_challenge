@@ -21,11 +21,10 @@ impl Ring_Pattern {
     }
     pub fn ring_at(&self, point: Point) -> Color {
         let x = (point.x.powf(2.0) + point.z.powf(2.0)).sqrt();
-        if x.floor() as i64 % 2 == 0  {
+        if x.floor() as i64 % 2 == 0 {
             self.a
         } else {
-         
-            self.b   
+            self.b
         }
     }
     pub fn ring_at_object(&self, object: &Object, world_point: Point) -> Color {
