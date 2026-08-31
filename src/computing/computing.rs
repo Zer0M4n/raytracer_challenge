@@ -1,5 +1,3 @@
-use std::f64::EPSILON;
-
 use crate::{
     math::{point::Point, vector::Vector},
     physics::{
@@ -16,6 +14,7 @@ pub struct Computing<'a> {
     pub normalv: Vector,
     pub inside: bool,
     pub over_point: Point,
+    pub relectv: Vector
 }
 
 impl<'a> Computing<'a> {
@@ -45,13 +44,16 @@ impl<'a> Computing<'a> {
             normalv,
             inside,
             over_point,
+            relectv: ray.direction.reflect(normalv)
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::physics::shape_collection::plane::Plane;
+
+use super::*;
 
     #[test]
     fn precomputing_the_state_of_an_intersection() {
@@ -96,5 +98,21 @@ mod tests {
         assert_eq!(comps.eyev, Vector::new(0.0, 0.0, -1.0));
         assert!(comps.inside);
         assert_eq!(comps.normalv, Vector::new(0.0, 0.0, -1.0));
+    }
+    #[test]
+    fn precomputing_the_reflecting_vector() {
+        let shape = Plane::new();
+        let r = Ray::new(
+            Point::new(0.0, 1.0, -1.0), 
+            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0)
+        );
+
+        let object = Object::Plane(shape);
+
+        let i = Intersection::new(2.0_f64.sqrt(), &object);
+
+        let comps = Computing::prepare_computations(&i,r);
+
+        assert_eq!(comps.relectv, Vector::new(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0))
     }
 }

@@ -16,6 +16,7 @@ pub struct Material {
     pub specular: f64,
     pub shininess: f64,
     pub pattern: Option<TypePattern>,
+    pub reflective: f64, 
 }
 #[derive(Debug, Clone, PartialEq, Copy)]
 
@@ -33,6 +34,7 @@ impl Material {
             specular: 0.9,
             shininess: 200.0,
             pattern: None,
+            reflective: 0.0,
         }
     }
     pub fn lighting(
@@ -215,4 +217,11 @@ mod tests {
         assert_eq!(c1, Color::new(1.0, 1.0, 1.0));
         assert_eq!(c2, Color::new(0.0, 0.0, 0.0));
     }
+    #[test]
+    pub fn reflective_for_the_deafult_material() {
+        let m = Material::default();
+
+        assert_eq!(m.reflective, 0.0)
+    }
+    
 }

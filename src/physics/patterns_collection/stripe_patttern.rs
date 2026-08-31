@@ -16,7 +16,7 @@ impl Stripe_Pattern {
         Stripe_Pattern {
             a: Color::new(1.0, 1.0, 1.0),
             b: Color::new(0.0, 0.0, 0.0),
-            transform: Matrix::scaling(0.25, 0.25, 0.25),
+            transform: Matrix::identity(4),
         }
     }
 

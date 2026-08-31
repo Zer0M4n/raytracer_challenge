@@ -2,7 +2,6 @@ use crate::{
     canvas::Canvas,
     math::{matrix::Matrix, point::Point},
     physics::{ray::Ray, world::World},
-    utils::comparing_floating_number,
 };
 use minifb::{Key, Window, WindowOptions};
 #[derive(Clone)]
@@ -146,7 +145,7 @@ mod tests {
     use minifb::Key::V;
 
     use crate::{
-        color::Color, math::vector::Vector, physics::world::World, utils::view_transformation,
+        color::Color, math::vector::Vector, physics::world::World, utils::view_transformation,utils::comparing_floating_number
     };
 
     use super::*;
