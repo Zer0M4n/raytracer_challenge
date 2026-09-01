@@ -1,7 +1,7 @@
 use crate::math::{matrix::Matrix, point::Point, vector::Vector};
 
 const PI_64: f64 = std::f64::consts::PI;
-const EPSILON: f64 = 0.00001;
+const EPSILON: f64 = 0.0001;
 // This fuctions exist for comparing float number with EPSILON for round of Error make two number that should
 // be  equivalent for instead be slighty different
 pub fn comparing_floating_number(x: f64, y: f64) -> bool {
