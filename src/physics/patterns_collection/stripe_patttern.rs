@@ -8,7 +8,7 @@ use crate::{
 pub struct Stripe_Pattern {
     a: Color,
     b: Color,
-    transform: Matrix,
+    pub transform: Matrix,
 }
 
 impl Stripe_Pattern {
