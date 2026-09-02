@@ -14,9 +14,11 @@ pub struct Computing<'a> {
     pub normalv: Vector,
     pub inside: bool,
     pub over_point: Point,
+    pub under_point: Point,
     pub relectv: Vector,
     pub n1: f64,
     pub n2: f64,
+
 }
 
 impl<'a> Computing<'a> {
@@ -26,6 +28,7 @@ impl<'a> Computing<'a> {
         xs: &[Intersection<'a>],
     ) -> Self {
         let comp_p = ray.position(intersection.t);
+        
 
         let mut normalv = intersection.object.normal_at(comp_p);
 
@@ -41,7 +44,7 @@ impl<'a> Computing<'a> {
         const EPSILON: f64 = 0.0001;
 
         let over_point = comp_p + normalv * EPSILON;
-
+        let under_point = comp_p - normalv * EPSILON;
         // Índices de refracción
         let mut n1 = 1.0;
         let mut n2 = 1.0;
@@ -87,6 +90,7 @@ impl<'a> Computing<'a> {
             normalv,
             inside,
             over_point,
+            under_point,
             relectv: ray.direction.reflect(normalv),
             n1,
             n2,
@@ -96,7 +100,9 @@ impl<'a> Computing<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::physics::shape_collection::plane::Plane;
+    use std::f64::EPSILON;
+
+use crate::physics::shape_collection::plane::Plane;
 
     use super::*;
 
@@ -174,5 +180,22 @@ fn the_hit_when_an_intersection_occurs_on_the_outside() {
             comps.relectv,
             Vector::new(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0)
         )
+    }
+    #[test]
+    fn the_under_point_is_offset_below_the_surface() {
+        let r = Ray::new(
+            Point::new(0.0, 0.0, -5.0), 
+            Vector::new(0.0, 0.0, 1.0)
+        );
+        let mut shape = Sphere::glass_sphere();
+        shape.transform = shape.transform.translate(0.0, 0.0, 1.0);
+        let object_shape = Object::Sphere(shape);
+        let i = Intersection::new(5.0, &object_shape);
+            let xs = vec![i.clone()];
+            let comps = Computing::prepare_computations(&i, r, &xs);
+        
+        assert!(comps.under_point.z > 0.0001 / 2.0);
+        assert!(comps.point.z < comps.under_point.z);
+
     }
 }
