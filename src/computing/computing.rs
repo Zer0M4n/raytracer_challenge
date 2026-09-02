@@ -15,10 +15,16 @@ pub struct Computing<'a> {
     pub inside: bool,
     pub over_point: Point,
     pub relectv: Vector,
+    pub n1: f64,
+    pub n2: f64,
 }
 
 impl<'a> Computing<'a> {
-    pub fn prepare_computations(intersection: &Intersection<'a>, ray: Ray) -> Self {
+    pub fn prepare_computations(
+        intersection: &Intersection<'a>,
+        ray: Ray,
+        xs: &[Intersection<'a>],
+    ) -> Self {
         let comp_p = ray.position(intersection.t);
 
         let mut normalv = intersection.object.normal_at(comp_p);
@@ -36,6 +42,43 @@ impl<'a> Computing<'a> {
 
         let over_point = comp_p + normalv * EPSILON;
 
+        // Índices de refracción
+        let mut n1 = 1.0;
+        let mut n2 = 1.0;
+
+        // Objetos que actualmente contienen al rayo
+        let mut containers: Vec<&Object> = Vec::new();
+
+        for i in xs {
+            // ¿Es esta la intersección que estamos preparando?
+            if std::ptr::eq(i, intersection) {
+                if let Some(object) = containers.last() {
+                    n1 = object.material().refractive_index;
+                }
+            }
+
+            // Si el objeto ya está dentro de containers,
+            // significa que estamos saliendo de él.
+            if let Some(index) = containers
+                .iter()
+                .position(|object| std::ptr::eq(*object, i.object))
+            {
+                containers.remove(index);
+            } else {
+                // Si no está, estamos entrando.
+                containers.push(i.object);
+            }
+
+            // Después de actualizar containers obtenemos n2
+            if std::ptr::eq(i, intersection) {
+                if let Some(object) = containers.last() {
+                    n2 = object.material().refractive_index;
+                }
+
+                break;
+            }
+        }
+
         Computing {
             t: intersection.t,
             object: intersection.object,
@@ -45,6 +88,8 @@ impl<'a> Computing<'a> {
             inside,
             over_point,
             relectv: ray.direction.reflect(normalv),
+            n1,
+            n2,
         }
     }
 }
@@ -62,8 +107,10 @@ mod tests {
         let object = Object::Sphere(shape);
 
         let i = Intersection::new(4.0, &object);
+        
+    let xs = vec![i.clone()];
 
-        let comps = Computing::prepare_computations(&i, r);
+    let comps = Computing::prepare_computations(&i, r, &xs);
 
         assert_eq!(comps.t, i.t);
         assert_eq!(comps.object, i.object);
@@ -71,18 +118,24 @@ mod tests {
         assert_eq!(comps.eyev, Vector::new(0.0, 0.0, -1.0));
         assert_eq!(comps.normalv, Vector::new(0.0, 0.0, -1.0));
     }
-    #[test]
-    fn the_hit_when_an_intersection_occurs_on_the_outside() {
-        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let shape = Sphere::new();
-        let object = Object::Sphere(shape);
+#[test]
+fn the_hit_when_an_intersection_occurs_on_the_outside() {
+    let r = Ray::new(
+        Point::new(0.0, 0.0, -5.0),
+        Vector::new(0.0, 0.0, 1.0),
+    );
 
-        let i = Intersection::new(4.0, &object);
+    let shape = Sphere::new();
+    let object = Object::Sphere(shape);
 
-        let comps = Computing::prepare_computations(&i, r);
+    let i = Intersection::new(4.0, &object);
 
-        assert_eq!(comps.inside, false);
-    }
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
+
+    assert_eq!(comps.inside, false);
+}
 
     #[test]
     fn the_hit_when_an_intersection_occurs_on_the_inside() {
@@ -92,7 +145,9 @@ mod tests {
 
         let i = Intersection::new(1.0, &object);
 
-        let comps = Computing::prepare_computations(&i, r);
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
 
         assert_eq!(comps.point, Point::new(0.0, 0.0, 1.0));
         assert_eq!(comps.eyev, Vector::new(0.0, 0.0, -1.0));
@@ -111,7 +166,9 @@ mod tests {
 
         let i = Intersection::new(2.0_f64.sqrt(), &object);
 
-        let comps = Computing::prepare_computations(&i, r);
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
 
         assert_eq!(
             comps.relectv,

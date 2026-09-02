@@ -17,6 +17,13 @@ impl Sphere {
             material: Material::default(),
         }
     }
+    pub fn glass_sphere() -> Self {
+        let transform = Matrix::identity(4);
+        let mut material = Material::default();
+        material.transparency = 1.0;
+        material.refractive_index = 1.5;
+        Sphere { transform, material }
+    }
 
     pub fn local_intersect(&self, ray: Ray) -> Vec<f64> {
         let sphere_to_ray = ray.origin - Point::new(0.0, 0.0, 0.0);
@@ -193,4 +200,12 @@ mod tests {
 
         assert_eq!(n, Vector::new(0.0, 0.97014, -0.24254))
     }
+    #[test]
+    fn a_helper_for_producing_a_sphere_with_a_glass_material() {
+        let s = Sphere::glass_sphere();
+        assert_eq!(s.transform, Matrix::identity(4));
+        assert_eq!(s.material.transparency, 1.0);
+        assert_eq!(s.material.refractive_index, 1.5);
+    }
+
 }

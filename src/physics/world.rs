@@ -86,7 +86,7 @@ impl World {
             return Color::new(0.0, 0.0, 0.0);
         }
 
-        let comps = Computing::prepare_computations(&hit.unwrap(), ray);
+        let comps = Computing::prepare_computations(&hit.unwrap(), ray, &xs);
 
         self.shade_hit(comps, remaining)
     }
@@ -163,7 +163,10 @@ mod tests {
         let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let shape = w.objects[0].clone(); //First object in w
         let i = Intersection::new(4.0, &shape);
-        let comps = Computing::prepare_computations(&i, r);
+
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
         let c = w.shade_hit(comps, 5);
         assert_eq!(Color::new(0.38066, 0.47583, 0.2855), c)
     }
@@ -177,7 +180,9 @@ mod tests {
 
         let i = Intersection::new(0.5, &shape);
 
-        let comps = Computing::prepare_computations(&i, r);
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
         let c = w.shade_hit(comps, 5);
 
         assert_eq!(Color::new(0.90498, 0.90498, 0.90498), c)
@@ -239,7 +244,9 @@ mod tests {
 
         let i = Intersection::new(4.0, &w.objects[1]);
 
-        let comps = Computing::prepare_computations(&i, r);
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
 
         let c = w.shade_hit(comps, 5);
 
@@ -250,7 +257,10 @@ mod tests {
         let w = World::default();
         let r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 0.0));
         let i = Intersection::new(w.objects[0].material().ambient, &w.objects[0]);
-        let comps = Computing::prepare_computations(&i, r);
+        
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
         let color = w.reflected_color(comps, 5);
 
         assert_eq!(color, Color::new(0.0, 0.0, 0.0));
@@ -270,7 +280,9 @@ mod tests {
 
         let i = &Intersection::new(2.0_f64.sqrt(), &obj);
 
-        let comps = Computing::prepare_computations(i, r);
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
 
         let color = w.reflected_color(comps, 5);
         assert_eq!(color, Color::new(0.19032, 0.2379, 0.14274))
@@ -290,7 +302,9 @@ mod tests {
 
         let i = &Intersection::new(2.0_f64.sqrt(), &obj);
 
-        let comps = Computing::prepare_computations(i, r);
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
 
         let color = w.shade_hit(comps, 5);
         assert_eq!(color, Color::new(0.87677, 0.92436, 0.82918))
@@ -334,7 +348,9 @@ mod tests {
         let object_shape = Object::Plane(shape);
         let i = Intersection::new(2.0_f64.sqrt(), &object_shape);
 
-        let comps = Computing::prepare_computations(&i, r);
+    let xs = vec![i.clone()];
+
+    let comps = Computing::prepare_computations(&i, r, &xs);
 
         let color = w.reflected_color(comps, 0);
     }
