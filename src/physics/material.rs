@@ -16,7 +16,7 @@ pub struct Material {
     pub specular: f64,
     pub shininess: f64,
     pub pattern: Option<TypePattern>,
-    pub reflective: f64, 
+    pub reflective: f64,
 }
 #[derive(Debug, Clone, PartialEq, Copy)]
 
@@ -223,5 +223,4 @@ mod tests {
 
         assert_eq!(m.reflective, 0.0)
     }
-    
 }

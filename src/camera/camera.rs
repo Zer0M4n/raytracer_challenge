@@ -70,7 +70,7 @@ impl Camera {
             for x in 0..self.hsize {
                 let ray = self.ray_for_pixel(x, y);
 
-                let color = world.color_at(ray);
+                let color = world.color_at(ray, 5);
 
                 if x % 100 == 0 && y % 100 == 0 {
                     println!("({}, {}) -> {:?}", x, y, color);
@@ -108,7 +108,7 @@ impl Camera {
             if !rendering_done && current_y < self.vsize {
                 for x in 0..self.hsize {
                     let ray = self.ray_for_pixel(x, current_y);
-                    let color = world.color_at(ray);
+                    let color = world.color_at(ray, 5);
 
                     canvas.write_pixel(x, current_y, color);
 
@@ -145,7 +145,8 @@ mod tests {
     use minifb::Key::V;
 
     use crate::{
-        color::Color, math::vector::Vector, physics::world::World, utils::view_transformation,utils::comparing_floating_number
+        color::Color, math::vector::Vector, physics::world::World,
+        utils::comparing_floating_number, utils::view_transformation,
     };
 
     use super::*;
