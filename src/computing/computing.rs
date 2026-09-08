@@ -18,7 +18,6 @@ pub struct Computing<'a> {
     pub relectv: Vector,
     pub n1: f64,
     pub n2: f64,
-
 }
 
 impl<'a> Computing<'a> {
@@ -28,7 +27,6 @@ impl<'a> Computing<'a> {
         xs: &[Intersection<'a>],
     ) -> Self {
         let comp_p = ray.position(intersection.t);
-        
 
         let mut normalv = intersection.object.normal_at(comp_p);
 
@@ -102,7 +100,7 @@ impl<'a> Computing<'a> {
 mod tests {
     use std::f64::EPSILON;
 
-use crate::physics::shape_collection::plane::Plane;
+    use crate::physics::shape_collection::plane::Plane;
 
     use super::*;
 
@@ -113,10 +111,10 @@ use crate::physics::shape_collection::plane::Plane;
         let object = Object::Sphere(shape);
 
         let i = Intersection::new(4.0, &object);
-        
-    let xs = vec![i.clone()];
 
-    let comps = Computing::prepare_computations(&i, r, &xs);
+        let xs = vec![i.clone()];
+
+        let comps = Computing::prepare_computations(&i, r, &xs);
 
         assert_eq!(comps.t, i.t);
         assert_eq!(comps.object, i.object);
@@ -124,24 +122,21 @@ use crate::physics::shape_collection::plane::Plane;
         assert_eq!(comps.eyev, Vector::new(0.0, 0.0, -1.0));
         assert_eq!(comps.normalv, Vector::new(0.0, 0.0, -1.0));
     }
-#[test]
-fn the_hit_when_an_intersection_occurs_on_the_outside() {
-    let r = Ray::new(
-        Point::new(0.0, 0.0, -5.0),
-        Vector::new(0.0, 0.0, 1.0),
-    );
+    #[test]
+    fn the_hit_when_an_intersection_occurs_on_the_outside() {
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
 
-    let shape = Sphere::new();
-    let object = Object::Sphere(shape);
+        let shape = Sphere::new();
+        let object = Object::Sphere(shape);
 
-    let i = Intersection::new(4.0, &object);
+        let i = Intersection::new(4.0, &object);
 
-    let xs = vec![i.clone()];
+        let xs = vec![i.clone()];
 
-    let comps = Computing::prepare_computations(&i, r, &xs);
+        let comps = Computing::prepare_computations(&i, r, &xs);
 
-    assert_eq!(comps.inside, false);
-}
+        assert_eq!(comps.inside, false);
+    }
 
     #[test]
     fn the_hit_when_an_intersection_occurs_on_the_inside() {
@@ -151,9 +146,9 @@ fn the_hit_when_an_intersection_occurs_on_the_outside() {
 
         let i = Intersection::new(1.0, &object);
 
-    let xs = vec![i.clone()];
+        let xs = vec![i.clone()];
 
-    let comps = Computing::prepare_computations(&i, r, &xs);
+        let comps = Computing::prepare_computations(&i, r, &xs);
 
         assert_eq!(comps.point, Point::new(0.0, 0.0, 1.0));
         assert_eq!(comps.eyev, Vector::new(0.0, 0.0, -1.0));
@@ -172,9 +167,9 @@ fn the_hit_when_an_intersection_occurs_on_the_outside() {
 
         let i = Intersection::new(2.0_f64.sqrt(), &object);
 
-    let xs = vec![i.clone()];
+        let xs = vec![i.clone()];
 
-    let comps = Computing::prepare_computations(&i, r, &xs);
+        let comps = Computing::prepare_computations(&i, r, &xs);
 
         assert_eq!(
             comps.relectv,
@@ -183,19 +178,15 @@ fn the_hit_when_an_intersection_occurs_on_the_outside() {
     }
     #[test]
     fn the_under_point_is_offset_below_the_surface() {
-        let r = Ray::new(
-            Point::new(0.0, 0.0, -5.0), 
-            Vector::new(0.0, 0.0, 1.0)
-        );
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
         let mut shape = Sphere::glass_sphere();
         shape.transform = shape.transform.translate(0.0, 0.0, 1.0);
         let object_shape = Object::Sphere(shape);
         let i = Intersection::new(5.0, &object_shape);
-            let xs = vec![i.clone()];
-            let comps = Computing::prepare_computations(&i, r, &xs);
-        
+        let xs = vec![i.clone()];
+        let comps = Computing::prepare_computations(&i, r, &xs);
+
         assert!(comps.under_point.z > 0.0001 / 2.0);
         assert!(comps.point.z < comps.under_point.z);
-
     }
 }

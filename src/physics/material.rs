@@ -154,9 +154,13 @@ impl Point_Light {
 
 #[cfg(test)]
 mod tests {
-    use crate::{computing::computing::Computing, physics::{
-        intersect::Intersection, patterns_collection::stripe_patttern::Stripe_Pattern, ray::Ray, shape_collection::sphere::Sphere,
-    }};
+    use crate::{
+        computing::computing::Computing,
+        physics::{
+            intersect::Intersection, patterns_collection::stripe_patttern::Stripe_Pattern,
+            ray::Ray, shape_collection::sphere::Sphere,
+        },
+    };
 
     use super::*;
     #[test]
@@ -230,48 +234,45 @@ mod tests {
     #[test]
     fn transparency_and_refractive_index_for_the_default_material() {
         let m = Material::default();
-        
+
         assert_eq!(m.transparency, 0.0);
         assert_eq!(m.refractive_index, 1.0);
     }
-#[test]
-fn finding_n1_and_n2_at_various_intersections() {
-    // A
-    let mut a = Sphere::glass_sphere();
-    a.transform = a.transform.scale(2.0, 2.0, 2.0);
-    a.material.refractive_index = 1.5;
+    #[test]
+    fn finding_n1_and_n2_at_various_intersections() {
+        // A
+        let mut a = Sphere::glass_sphere();
+        a.transform = a.transform.scale(2.0, 2.0, 2.0);
+        a.material.refractive_index = 1.5;
 
-    // B
-    let mut b = Sphere::glass_sphere();
-    b.transform = b.transform.translate(0.0, 0.0, -0.25);
-    b.material.refractive_index = 2.0;
+        // B
+        let mut b = Sphere::glass_sphere();
+        b.transform = b.transform.translate(0.0, 0.0, -0.25);
+        b.material.refractive_index = 2.0;
 
-    // C
-    let mut c = Sphere::glass_sphere();
-    c.transform = c.transform.translate(0.0, 0.0, 0.25);
-    c.material.refractive_index = 2.5;
+        // C
+        let mut c = Sphere::glass_sphere();
+        c.transform = c.transform.translate(0.0, 0.0, 0.25);
+        c.material.refractive_index = 2.5;
 
-    let a = Object::Sphere(a);
-    let b = Object::Sphere(b);
-    let c = Object::Sphere(c);
+        let a = Object::Sphere(a);
+        let b = Object::Sphere(b);
+        let c = Object::Sphere(c);
 
-    let r = Ray::new(
-        Point::new(0.0, 0.0, -4.0),
-        Vector::new(0.0, 0.0, 1.0),
-    );
+        let r = Ray::new(Point::new(0.0, 0.0, -4.0), Vector::new(0.0, 0.0, 1.0));
 
-    let xs = vec![
-        Intersection::new(2.0, &a),
-        Intersection::new(2.75, &b),
-        Intersection::new(3.25, &c),
-        Intersection::new(4.75, &b),
-        Intersection::new(5.25, &c),
-        Intersection::new(6.0, &a),
-    ];
+        let xs = vec![
+            Intersection::new(2.0, &a),
+            Intersection::new(2.75, &b),
+            Intersection::new(3.25, &c),
+            Intersection::new(4.75, &b),
+            Intersection::new(5.25, &c),
+            Intersection::new(6.0, &a),
+        ];
 
-    let comps = Computing::prepare_computations(&xs[0], r, &xs);
+        let comps = Computing::prepare_computations(&xs[0], r, &xs);
 
-    assert_eq!(comps.n1, 1.0);
-    assert_eq!(comps.n2, 1.5);
-}
+        assert_eq!(comps.n1, 1.0);
+        assert_eq!(comps.n2, 1.5);
+    }
 }

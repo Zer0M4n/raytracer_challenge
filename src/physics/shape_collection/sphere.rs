@@ -22,7 +22,10 @@ impl Sphere {
         let mut material = Material::default();
         material.transparency = 1.0;
         material.refractive_index = 1.5;
-        Sphere { transform, material }
+        Sphere {
+            transform,
+            material,
+        }
     }
 
     pub fn local_intersect(&self, ray: Ray) -> Vec<f64> {
@@ -207,5 +210,4 @@ mod tests {
         assert_eq!(s.material.transparency, 1.0);
         assert_eq!(s.material.refractive_index, 1.5);
     }
-
 }
