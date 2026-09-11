@@ -32,15 +32,15 @@ fn main() {
 
     let ring = Ring_Pattern::new();
 
-    // floor.material.pattern = Some(TypePattern::Checker3DPattern(ring));
+ let mut middle = Sphere::glass_sphere();
 
-    let mut middle = Sphere::glass_sphere();
-    middle.transform = Matrix::traslation(-0.4, 1.0, 0.5);
-    middle.material = Material::default();
-    middle.material.color(Color::new(1.0, 0.04, 0.003));
-    middle.material.diffuse(0.7);
-    middle.material.specular(0.3);
-    //middle.material.pattern = Some(TypePattern::Ring_Pattern(ring));
+middle.transform = Matrix::traslation(-0.4, 1.0, 0.5);
+
+middle.material.color(Color::new(1.0, 1.0, 1.0));
+middle.material.ambient(0.0);
+middle.material.diffuse(0.1);
+middle.material.specular(0.9);
+middle.material.shininess(300.0);
 
     let mut right = Sphere::new();
     right.material = Material::default();
