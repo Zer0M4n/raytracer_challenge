@@ -5,7 +5,7 @@ use crate::{
         object::Object,
         patterns_collection::{
             self, checker3d_pattern::Checker3DPattern, gradient_pattern::Gradient_Pattern,
-            ring_pattern::Ring_Pattern, stripe_patttern::Stripe_Pattern,
+            ring_pattern::Ring_Pattern, stripe_patttern::Stripe_Pattern, test_pattern::TestPattern,
         },
         world::World,
     },
@@ -17,13 +17,12 @@ pub enum TypePattern {
     Gradient_Pattern(Gradient_Pattern),
     Ring_Pattern(Ring_Pattern),
     Checker3DPattern(Checker3DPattern),
+    TestPattern(TestPattern),
 }
 
 impl TypePattern {
     pub fn test_patter() -> TypePattern {
-        let p = Stripe_Pattern::new();
-
-        TypePattern::Stripe_Pattern(p)
+        TypePattern::TestPattern(TestPattern::new())
     }
     pub fn at(&self, object: &Object, world_point: Point) -> Color {
         match self {
@@ -33,6 +32,7 @@ impl TypePattern {
             }
             TypePattern::Ring_Pattern(ring) => ring.ring_at_object(object, world_point),
             TypePattern::Checker3DPattern(check) => check.checker_at_object(object, world_point),
+            TypePattern::TestPattern(p) => p.test_at_object(object, world_point),
         }
     }
 }

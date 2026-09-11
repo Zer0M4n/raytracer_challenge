@@ -64,7 +64,14 @@ impl World {
     }
     fn shade_hit(&self, comps: Computing, remaining: u32) -> Color {
         let shadowed = self.is_shadowed(comps.over_point);
+        println!("ambient = {}", comps.object.material().ambient);
 
+        println!(
+            "has pattern = {}",
+            comps.object.material().pattern.is_some()
+        );
+
+        println!("point = {:?}", comps.point);
         let surface = comps.object.material().lighting(
             &self.light,
             comps.point,
@@ -74,9 +81,10 @@ impl World {
             Some(&comps.object),
         );
 
+        let refraction = self.refracted_color(comps.clone(), remaining);
         let reflected = self.reflected_color(comps, remaining);
 
-        surface + reflected
+        surface + reflected + refraction
     }
     pub fn color_at(&self, ray: Ray, remaining: u32) -> Color {
         let xs = self.intersect_world(ray);
@@ -109,14 +117,28 @@ impl World {
         if remaining == 0 {
             return Color::new(0.0, 0.0, 0.0);
         }
-        let n_ratio = comps.n1 / comps.n2;
-        let cos_i = comps.eyev.dot_product(comps.normalv);
-        let sin2_t = n_ratio.powf(2.0) * (1.0 - cos_i.powf(2.0));
-        if sin2_t > 1.0{
+        if comps.object.material().transparency == 0.0 {
             return Color::new(0.0, 0.0, 0.0);
         }
 
-        Color::new(1.0, 1.0, 1.0)
+        let n_ratio = comps.n1 / comps.n2;
+        let cos_i = comps.eyev.dot_product(comps.normalv);
+
+        let sin2_t = n_ratio.powf(2.0) * (1.0 - cos_i.powf(2.0));
+
+        if sin2_t > 1.0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+
+        let cos_t = (1.0 - sin2_t).sqrt();
+
+        let direction = comps.normalv * (n_ratio * cos_i - cos_t) - comps.eyev * n_ratio;
+
+        let refracted_ray = Ray::new(comps.under_point, direction);
+
+        let c = self.color_at(refracted_ray, remaining - 1) * comps.object.material().transparency;
+
+        c
     }
 }
 
@@ -131,6 +153,7 @@ mod tests {
             material::Material,
             ray::Ray,
             shape_collection::{plane::Plane, sphere::Sphere},
+            type_pattern::TypePattern,
         },
     };
 
@@ -274,7 +297,7 @@ mod tests {
         let xs = vec![i.clone()];
 
         let comps = Computing::prepare_computations(&i, r, &xs);
-        let color = w.reflected_color(comps, 5);
+        let color = w.refracted_color(comps, 5);
 
         assert_eq!(color, Color::new(0.0, 0.0, 0.0));
     }
@@ -365,7 +388,7 @@ mod tests {
 
         let comps = Computing::prepare_computations(&i, r, &xs);
 
-        let color = w.reflected_color(comps, 0);
+        let color = w.refracted_color(comps, 0);
     }
     #[test]
     fn the_refracted_color_at_maximum_recursive_depth() {
@@ -391,47 +414,63 @@ mod tests {
 
         assert_eq!(c, Color::new(0.0, 0.0, 0.0));
     }
-   #[test]
-fn the_refracted_color_under_total_internal_reflection() {
-    let w = World::default();
+    #[test]
+    fn the_refracted_color_under_total_internal_reflection() {
+        let w = World::default();
 
-    let mut shape = w.objects[0].clone();
+        let mut shape = w.objects[0].clone();
 
-    shape.material_mut().transparency = 1.0;
-    shape.material_mut().refractive_index = 1.5;
+        shape.material_mut().transparency = 1.0;
+        shape.material_mut().refractive_index = 1.5;
 
-    let r = Ray::new(
-        Point::new(
-            0.0,
-            0.0,
-            2.0_f64.sqrt() / 2.0
-        ),
-        Vector::new(0.0, 1.0, 0.0),
-    );
+        let r = Ray::new(
+            Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
+            Vector::new(0.0, 1.0, 0.0),
+        );
 
-    let xs = vec![
-        Intersection::new(
-            -2.0_f64.sqrt() / 2.0,
-            &shape
-        ),
-        Intersection::new(
-            2.0_f64.sqrt() / 2.0,
-            &shape
-        ),
-    ];
+        let xs = vec![
+            Intersection::new(-2.0_f64.sqrt() / 2.0, &shape),
+            Intersection::new(2.0_f64.sqrt() / 2.0, &shape),
+        ];
 
-    let comps = Computing::prepare_computations(
-        &xs[1],
-        r,
-        &xs,
-    );
+        let comps = Computing::prepare_computations(&xs[1], r, &xs);
 
-    let c = w.refracted_color(comps, 5);
+        let c = w.refracted_color(comps, 5);
 
-    assert_eq!(
-        c,
-        Color::new(0.0, 0.0, 0.0)
-    );
-}
+        assert_eq!(c, Color::new(0.0, 0.0, 0.0));
+    }
 
+    #[test]
+    fn the_refracted_color_with_a_refrected_ray() {
+        let mut w = World::default();
+
+        //The first object in world
+        w.objects[0].material_mut().ambient = 1.0;
+        w.objects[0].material_mut().pattern = Some(TypePattern::test_patter());
+
+        //The second object in world
+        w.objects[1].material_mut().transparency = 1.0;
+        w.objects[1].material_mut().refractive_index = 1.5;
+
+        let r = Ray::new(Point::new(0.0, 0.0, 0.1), Vector::new(0.0, 1.0, 0.0));
+
+        let xs = vec![
+            Intersection::new(-0.9899, &w.objects[0]),
+            Intersection::new(-0.4899, &w.objects[1]),
+            Intersection::new(0.4899, &w.objects[1]),
+            Intersection::new(0.9899, &w.objects[0]),
+        ];
+        let comps = Computing::prepare_computations(&xs[2], r, &xs);
+
+        let c = w.refracted_color(comps, 5);
+
+        assert_eq!(c, Color::new(0.0, 0.99888, 0.04725))
+    }
+    #[test]
+    fn shade_hit_with_transparent_material() {
+        let mut w = World::default();
+
+        let mut floor = Plane::new();
+
+    }
 }
