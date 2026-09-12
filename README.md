@@ -48,7 +48,7 @@ cargo test
 
 ## Last IMAGE generated
 
-![Last image generated](img/first_image_with_reflective.jpg")
+![Last image generated]("img/first_image_with_reflective.jpg")
 
 ## Gallery
 
