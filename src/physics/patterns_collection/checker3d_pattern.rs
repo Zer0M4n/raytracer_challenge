@@ -15,7 +15,7 @@ impl Checker3DPattern {
     pub fn new() -> Self {
         let a = Color::new(0.0, 0.0, 1.0);
         let b = Color::new(1.0, 1.0, 1.0);
-        let transform: Matrix = Matrix::scaling(0.25, 0.25, 0.25);
+        let transform: Matrix = Matrix::identity(4);
         Checker3DPattern { a, b, transform }
     }
     pub fn checker_at(&self, point: Point) -> Color {

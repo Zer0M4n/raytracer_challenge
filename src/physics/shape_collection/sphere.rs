@@ -28,6 +28,46 @@ impl Sphere {
         }
     }
 
+
+    pub fn water_sphere() -> Self {
+        let transform = Matrix::identity(4);
+
+        let mut material = Material::default();
+        material.transparency = 1.0;
+        material.refractive_index = 1.33;
+
+        Sphere {
+            transform,
+            material,
+        }
+    }
+
+    pub fn sapphire_sphere() -> Self {
+        let transform = Matrix::identity(4);
+
+        let mut material = Material::default();
+        material.transparency = 1.0;
+        material.refractive_index = 1.77;
+
+        Sphere {
+            transform,
+            material,
+        }
+    }
+
+    pub fn diamond_sphere() -> Self {
+        let transform = Matrix::identity(4);
+
+        let mut material = Material::default();
+        material.transparency = 1.0;
+        material.refractive_index = 2.417;
+
+        Sphere {
+            transform,
+            material,
+        }
+    }
+
     pub fn local_intersect(&self, ray: Ray) -> Vec<f64> {
         let sphere_to_ray = ray.origin - Point::new(0.0, 0.0, 0.0);
 

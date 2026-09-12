@@ -62,7 +62,6 @@ impl Material {
         } else {
             self.color
         };
-        println!("surface_color = {:?}", surface_color);
         // --------------------------------------------------
         // 2. Color de superficie * intensidad de la luz
         // --------------------------------------------------

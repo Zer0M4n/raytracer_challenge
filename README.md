@@ -49,3 +49,50 @@ cargo test
 ## Last IMAGE generated
 
 ![Last image generated](img/example.png)
+
+## Gallery
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="img/first_circle.jpg" width="250"/><br/>
+      <sub>First circle</sub>
+    </td>
+    <td align="center">
+      <img src="img/first_circle_with_light.jpg" width="250"/><br/>
+      <sub>First circle with light</sub>
+    </td>
+    <td align="center">
+      <img src="img/first_image_shadow.jpg" width="250"/><br/>
+      <sub>First image with shadow</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="img/first_image_with_pattern.jpg" width="250"/><br/>
+      <sub>Pattern</sub>
+    </td>
+    <td align="center">
+      <img src="img/first_image_with_plane.jpg" width="250"/><br/>
+      <sub>Plane</sub>
+    </td>
+    <td align="center">
+      <img src="img/first_image_with_reflective.jpg" width="250"/><br/>
+      <sub>Reflective surfaces</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="img/first_plane_the_world.jpg" width="250"/><br/>
+      <sub>Full scene: floor, walls & spheres</sub>
+    </td>
+    <td align="center">
+      <img src="img/fuction_image_example.jpg" width="250"/><br/>
+      <sub>Function image example</sub>
+    </td>
+    <td align="center">
+      <img src="img/image_example.jpg" width="250"/><br/>
+      <sub>Image example</sub>
+    </td>
+  </tr>
+</table>
