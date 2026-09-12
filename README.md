@@ -48,7 +48,7 @@ cargo test
 
 ## Last IMAGE generated
 
-![Last image generated]("img/first_image_with_reflective.jpg")
+![Last image generated](img/first_image_with_reflective.jpg)
 
 ## Gallery
 
@@ -96,3 +96,38 @@ cargo test
     </td>
   </tr>
 </table>
+
+## Roadmap
+
+Features planned as I work through the rest of the book:
+
+- [ ] **Cubes**
+  - [ ] Ray-cube intersection
+  - [ ] Cube normals
+- [ ] **Cylinders**
+  - [ ] Ray-cylinder intersection
+  - [ ] Cylinder normals
+  - [ ] Truncated cylinders
+  - [ ] Capped cylinders
+  - [ ] Cones
+- [ ] **Groups**
+  - [ ] Group implementation
+  - [ ] Normals on child objects
+  - [ ] Bounding boxes for scene optimization
+- [ ] **Triangles**
+  - [ ] Triangle intersection
+  - [ ] Wavefront OBJ file parsing
+  - [ ] Smooth triangles
+  - [ ] Smooth triangles from OBJ files
+- [ ] **Constructive Solid Geometry (CSG)**
+  - [ ] CSG implementation
+  - [ ] Coloring CSG shapes
+- [ ] **Next steps**
+  - [ ] Area lights & soft shadows
+  - [ ] Spotlights
+  - [ ] Focal blur
+  - [ ] Motion blur
+  - [ ] Anti-aliasing
+  - [ ] Texture maps
+  - [ ] Normal perturbation
+  - [ ] Torus primitive
