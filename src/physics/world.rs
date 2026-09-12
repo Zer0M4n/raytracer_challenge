@@ -65,8 +65,6 @@ impl World {
     fn shade_hit(&self, comps: Computing, remaining: u32) -> Color {
         let shadowed = self.is_shadowed(comps.over_point);
 
-
-        println!("point = {:?}", comps.point);
         let surface = comps.object.material().lighting(
             &self.light,
             comps.point,
@@ -76,10 +74,20 @@ impl World {
             Some(&comps.object),
         );
 
-        let refraction = self.refracted_color(comps.clone(), remaining);
-        let reflected = self.reflected_color(comps, remaining);
+        let reflected = self.reflected_color(comps.clone(), remaining);
+        let refracted = self.refracted_color(comps.clone(), remaining);
 
-        surface + reflected + refraction
+        let material = comps.object.material();
+
+        if material.reflective > 0.0 && material.transparency > 0.0 {
+            let reflectance = comps.schlick();
+
+            surface
+                + reflected * reflectance
+                + refracted * (1.0 - reflectance)
+        } else {
+            surface + reflected + refracted
+        }
     }
     pub fn color_at(&self, ray: Ray, remaining: u32) -> Color {
         let xs = self.intersect_world(ray);
@@ -499,5 +507,44 @@ mod tests {
             Color::new(0.93642, 0.68642, 0.68642)
         )
 
+    }
+    #[test]
+    fn shade_hit_with_a_reflective_transparent_material() {
+        let mut w = World::default();
+
+        let mut floor = Plane::new();
+        floor.transform = floor.transform.translate(0.0, -1.0, 0.0);
+        floor.material.reflective = 0.5;
+        floor.material.transparency = 0.5;
+        floor.material.refractive_index = 1.5;
+
+        let mut ball = Sphere::new();
+        ball.material.color = Color::new(1.0, 0.0, 0.0);
+        ball.material.ambient = 0.5;
+        ball.transform = ball.transform.translate(0.0, -3.5, -0.5);
+
+        let object_floor = Object::Plane(floor);
+        let object_ball = Object::Sphere(ball);
+
+        w.add_object(object_ball);
+        w.add_object(object_floor.clone());
+
+        let r = Ray::new(
+            Point::new(0.0, 0.0, -3.0), 
+            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0)
+        );
+
+        let xs = vec![
+            Intersection::new(2.0_f64.sqrt(), &object_floor)
+        ];
+
+        let comps = Computing::prepare_computations(&xs[0], r, &xs);
+
+        let c = w.shade_hit(comps, 5);
+
+        assert_eq!(
+            c, 
+            Color::new(0.93391, 0.69643, 0.69243)
+        )
     }
 }

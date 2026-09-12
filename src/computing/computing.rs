@@ -96,7 +96,7 @@ impl<'a> Computing<'a> {
     }
 
     pub fn schlick(&self) -> f64 {
-        let cos = self.eyev.dot_product(self.normalv);
+        let mut cos = self.eyev.dot_product(self.normalv);
 
         if self.n1 > self.n2 {
             let n = self.n1 / self.n2;
@@ -105,8 +105,13 @@ impl<'a> Computing<'a> {
             if sin2_t > 1.0 {
                 return 1.0;
             }
+            let cos_t = (1.0 - sin2_t).sqrt();
+
+            cos = cos_t;
         }
-        0.0
+        let r0 = ((self.n1 - self.n2) / (self.n1 + self.n2)).powf(2.0);
+
+        r0 + (1.0 - r0) * (1.0 - cos).powf(5.0)
     }
 }
 
@@ -221,4 +226,23 @@ mod tests {
         let reflectance = comps.schlick();
         assert_eq!(reflectance, 1.0)
     }
+    #[test]
+    fn the_schilick_aproximation_with_small_angle_an_n2_mayor_n1() {
+        let shape = Sphere::glass_sphere();
+        let r = Ray::new(
+            Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0), 
+            Vector::new(0.0, 1.0, 0.0)
+        );
+        let object_shape = Object::Sphere(shape);
+        let xs = vec![
+            Intersection::new(-2.0_f64.sqrt() / 2.0, &object_shape),
+            Intersection::new(2.0_f64.sqrt() / 2.0, &object_shape),
+        ];
+
+        let comps = Computing::prepare_computations(&xs[1], r, &xs);
+
+        let reflectance = comps.schlick();
+        assert_eq!(reflectance, 1.0)
+    }
+
 }
