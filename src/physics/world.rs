@@ -82,9 +82,7 @@ impl World {
         if material.reflective > 0.0 && material.transparency > 0.0 {
             let reflectance = comps.schlick();
 
-            surface
-                + reflected * reflectance
-                + refracted * (1.0 - reflectance)
+            surface + reflected * reflectance + refracted * (1.0 - reflectance)
         } else {
             surface + reflected + refracted
         }
@@ -490,23 +488,17 @@ mod tests {
         w.add_object(object_floor.clone());
 
         let r = Ray::new(
-            Point::new(0.0, 0.0, -3.0), 
-            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0)
+            Point::new(0.0, 0.0, -3.0),
+            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0),
         );
 
-        let xs = vec![
-            Intersection::new(2.0_f64.sqrt(), &object_floor)
-        ];
+        let xs = vec![Intersection::new(2.0_f64.sqrt(), &object_floor)];
 
         let comps = Computing::prepare_computations(&xs[0], r, &xs);
 
         let c = w.shade_hit(comps, 5);
 
-        assert_eq!(
-            c, 
-            Color::new(0.93642, 0.68642, 0.68642)
-        )
-
+        assert_eq!(c, Color::new(0.93642, 0.68642, 0.68642))
     }
     #[test]
     fn shade_hit_with_a_reflective_transparent_material() {
@@ -530,21 +522,16 @@ mod tests {
         w.add_object(object_floor.clone());
 
         let r = Ray::new(
-            Point::new(0.0, 0.0, -3.0), 
-            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0)
+            Point::new(0.0, 0.0, -3.0),
+            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0),
         );
 
-        let xs = vec![
-            Intersection::new(2.0_f64.sqrt(), &object_floor)
-        ];
+        let xs = vec![Intersection::new(2.0_f64.sqrt(), &object_floor)];
 
         let comps = Computing::prepare_computations(&xs[0], r, &xs);
 
         let c = w.shade_hit(comps, 5);
 
-        assert_eq!(
-            c, 
-            Color::new(0.93391, 0.69643, 0.69243)
-        )
+        assert_eq!(c, Color::new(0.93391, 0.69643, 0.69243))
     }
 }

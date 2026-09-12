@@ -26,21 +26,24 @@ use crate::utils::view_transformation;
 use crate::{camera::camera::Camera, physics::material::Material};
 
 fn main() {
+    let square_patter = Checker3DPattern::new();
     let mut floor = shape_collection::plane::Plane::new();
     floor.material.color(Color::new(1.0, 0.9, 0.9));
     floor.material.specular(0.0);
+    floor.material.pattern = Some(TypePattern::Checker3DPattern(square_patter));
 
-    let ring = Ring_Pattern::new();
+   let mut middle = Sphere::glass_sphere();
 
- let mut middle = Sphere::glass_sphere();
+    middle.transform = Matrix::traslation(-0.4, 1.0, 0.5);
 
-middle.transform = Matrix::traslation(-0.4, 1.0, 0.5);
+    middle.material.color(Color::new(0.15, 0.12, 0.01));    middle.material.ambient(0.0);
+    middle.material.diffuse(0.1);
+    middle.material.specular(1.0);
+    middle.material.shininess(300.0);
 
-middle.material.color(Color::new(1.0, 1.0, 1.0));
-middle.material.ambient(0.0);
-middle.material.diffuse(0.1);
-middle.material.specular(0.9);
-middle.material.shininess(300.0);
+    middle.material.reflective = 0.9;
+    middle.material.transparency = 0.9;
+    middle.material.refractive_index = 1.5;
 
     let mut right = Sphere::new();
     right.material = Material::default();
@@ -71,11 +74,11 @@ middle.material.shininess(300.0);
     w.add_object(Object::Sphere(left));
 
     let mut c = Camera::new(1000, 500, PI / 3.0);
-    c.transform = view_transformation(
-        Point::new(0.0, 1.5, -5.0),
-        Point::new(0.0, 1.0, 0.0),
-        Vector::new(0.0, 1.0, 0.0),
-    );
+c.transform = view_transformation(
+    Point::new(-0.4, 8.0, 0.5),
+    Point::new(-0.4, 0.0, 0.5),
+    Vector::new(0.0, 0.0, -1.0),
+);
 
     let canv = c.render_screen(w);
     canv.canvas_to_ppm().unwrap();

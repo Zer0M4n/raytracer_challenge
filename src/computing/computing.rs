@@ -101,7 +101,7 @@ impl<'a> Computing<'a> {
         if self.n1 > self.n2 {
             let n = self.n1 / self.n2;
             let sin2_t = n.powf(2.0) * (1.0 - cos.powf(2.0));
-            
+
             if sin2_t > 1.0 {
                 return 1.0;
             }
@@ -212,8 +212,8 @@ mod tests {
     fn the_schlick_approximation_under_total_internal_reflection() {
         let shape = Sphere::glass_sphere();
         let r = Ray::new(
-            Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0), 
-            Vector::new(0.0, 1.0, 0.0)
+            Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
+            Vector::new(0.0, 1.0, 0.0),
         );
         let object_shape = Object::Sphere(shape);
         let xs = vec![
@@ -230,8 +230,8 @@ mod tests {
     fn the_schilick_aproximation_with_small_angle_an_n2_mayor_n1() {
         let shape = Sphere::glass_sphere();
         let r = Ray::new(
-            Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0), 
-            Vector::new(0.0, 1.0, 0.0)
+            Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
+            Vector::new(0.0, 1.0, 0.0),
         );
         let object_shape = Object::Sphere(shape);
         let xs = vec![
@@ -244,5 +244,4 @@ mod tests {
         let reflectance = comps.schlick();
         assert_eq!(reflectance, 1.0)
     }
-
 }
