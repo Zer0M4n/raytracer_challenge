@@ -31,17 +31,26 @@ fn main() {
     // FLOOR
     // ============================================================
 
-    let mut floor = shape_collection::plane::Plane::new();
+    
+let square_pattern = Checker3DPattern::new();
+let mut floor = shape_collection::plane::Plane::new();
 
-    floor.material.color(
-        Color::new(0.08, 0.08, 0.10)
-    );
+// Material base
+floor.material.color(
+    Color::new(0.08, 0.08, 0.10)
+);
 
-    floor.material.ambient(0.20);
-    floor.material.diffuse(0.70);
-    floor.material.specular(0.20);
+floor.material.ambient(0.20);
+floor.material.diffuse(0.70);
+floor.material.specular(0.30);
 
+// Patrón 3D
+floor.material.pattern = Some(
+    TypePattern::Checker3DPattern(square_pattern)
+);
 
+// Transformación del piso
+floor.transform = Matrix::identity(4);
     // ============================================================
     // BACK WALL
     // ============================================================
@@ -281,9 +290,9 @@ fn main() {
 
     w.add_object(Object::Plane(floor));
 
-    w.add_object(Object::Plane(back_wall));
-    w.add_object(Object::Plane(left_wall));
-    w.add_object(Object::Plane(right_wall));
+    // w.add_object(Object::Plane(back_wall));
+    // w.add_object(Object::Plane(left_wall));
+    // w.add_object(Object::Plane(right_wall));
 
     w.add_object(Object::Sphere(center));
 
